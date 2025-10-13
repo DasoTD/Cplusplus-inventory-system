@@ -1,0 +1,10 @@
+{
+  "db_clients": [
+    {
+      "name": "default",
+      "rdbms": "sqlite3",
+      "filename": "inventory.db",
+      "is_fast": true
+    }
+  ]
+}
