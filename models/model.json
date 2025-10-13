@@ -1,8 +1,8 @@
 {
     //rdbms: server type, postgresql,mysql or sqlite3
-    "rdbms": "postgresql",
+    "rdbms": "sqlite3",
     //filename: sqlite3 db file name
-    //"filename":"",
+    "filename": "inventory.db",
     //host: server address,localhost by default;
     "host": "127.0.0.1",
     //port: server port, 5432 by default;
