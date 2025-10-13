@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  inventory-system:
+    build: .
+    ports:
+      - "7777:7777"
+    volumes:
+      - inventory_data:/app/inventory.db
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7777/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  inventory_data:

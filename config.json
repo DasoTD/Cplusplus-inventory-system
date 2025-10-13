@@ -4,7 +4,7 @@
       "name": "default",
       "rdbms": "sqlite3",
       "filename": "inventory.db",
-      "is_fast": true
+      "is_fast": false
     }
   ]
 }

@@ -1,3 +1,7 @@
+<%view%>
+<%c++
+#include <drogon/DrTemplateBase.h>
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,14 +32,14 @@
                 data.forEach(product => {
                     const row = table.insertRow();
                     row.innerHTML = `
-                        <td>${product.product_id}</td>
-                        <td>${product.sku}</td>
-                        <td>${product.name}</td>
-                        <td>${product.quantity_in_stock}</td>
-                        <td>${product.reorder_threshold}</td>
+                        <td>$${product.product_id}</td>
+                        <td>$${product.sku}</td>
+                        <td>$${product.name}</td>
+                        <td>$${product.quantity_in_stock}</td>
+                        <td>$${product.reorder_threshold}</td>
                         <td>
-                            <input type="number" id="qty${product.product_id}" placeholder="Adjust stock">
-                            <button onclick="updateStock(${product.product_id})">Update</button>
+                            <input type="number" id="qty$${product.product_id}" placeholder="Adjust stock">
+                            <button onclick="updateStock($${product.product_id})">Update</button>
                         </td>
                     `;
                 });
@@ -49,21 +53,21 @@
                 data.forEach(order => {
                     const row = table.insertRow();
                     row.innerHTML = `
-                        <td>${order.order_id}</td>
-                        <td>${order.product_id}</td>
-                        <td>${order.quantity_ordered}</td>
-                        <td>${order.order_date}</td>
-                        <td>${order.status}</td>
+                        <td>$${order.order_id}</td>
+                        <td>$${order.product_id}</td>
+                        <td>$${order.quantity_ordered}</td>
+                        <td>$${order.order_date}</td>
+                        <td>$${order.status}</td>
                         <td>
-                            ${order.status === 'PENDING' ? `<button onclick="completeOrder(${order.order_id})">Complete</button>` : ''}
+                            $${order.status === 'PENDING' ? `<button onclick="completeOrder($${order.order_id})">Complete</button>` : ''}
                         </td>
                     `;
                 });
             });
 
         function updateStock(productId) {
-            const qty = document.getElementById(`qty${productId}`).value;
-            fetch(`/api/products/${productId}/stock`, {
+            const qty = document.getElementById(`qty$${productId}`).value;
+            fetch(`/api/products/$${productId}/stock`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ quantity: parseInt(qty) })
@@ -71,7 +75,7 @@
         }
 
         function completeOrder(orderId) {
-            fetch(`/api/orders/${orderId}/complete`, {
+            fetch(`/api/orders/$${orderId}/complete`, {
                 method: 'POST'
             }).then(() => location.reload());
         }
