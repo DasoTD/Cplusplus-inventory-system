@@ -208,7 +208,7 @@ jobs:
     
     - name: Configure CMake
       run: |
-        $env:PATH += ";C:/Drogon/bin"
+        $env:PATH += ";C:/Drogon/bin;C:/Drogon/lib;C:/vcpkg/installed/x64-windows/bin"
         if (Test-Path build) { Remove-Item build -Recurse -Force }
         New-Item -ItemType Directory -Path build
         cd build
@@ -216,7 +216,7 @@ jobs:
     
     - name: Build
       run: |
-        $env:PATH += ";C:/Drogon/bin"
+        $env:PATH += ";C:/Drogon/bin;C:/Drogon/lib;C:/vcpkg/installed/x64-windows/bin"
         cd build
         cmake --build . --config Release --parallel
     
