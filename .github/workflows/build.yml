@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -279,6 +284,10 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     
     steps:
     - name: Checkout code
@@ -295,5 +304,18 @@ jobs:
     - name: Upload Trivy scan results
       uses: github/codeql-action/upload-sarif@v3
       if: always()
+      continue-on-error: true
       with:
         sarif_file: 'trivy-results.sarif'
+    
+    - name: Display Trivy scan results (fallback)
+      if: always()
+      run: |
+        echo "=== Security Scan Results ==="
+        if [ -f "trivy-results.sarif" ]; then
+          echo "Trivy scan completed. Results saved to trivy-results.sarif"
+          # Show summary of findings
+          jq -r '.runs[0].results[]? | "- \(.level // "info"): \(.message.text)"' trivy-results.sarif | head -10 || echo "No issues found or unable to parse results"
+        else
+          echo "No security scan results file found"
+        fi
