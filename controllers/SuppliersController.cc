@@ -8,26 +8,17 @@
 #include "SuppliersController.h"
 #include <string>
 
+void SuppliersController::getOne(const HttpRequestPtr& req,
+                                 std::function<void(const HttpResponsePtr&)>&& callback,
+                                 std::string&& id) {}
 
-void SuppliersController::getOne(const HttpRequestPtr &req,
-                                 std::function<void(const HttpResponsePtr &)> &&callback,
-                                 std::string &&id)
-{
-}
-
-void SuppliersController::get(const HttpRequestPtr &req,
-                              std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void SuppliersController::create(const HttpRequestPtr &req,
-                                 std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void SuppliersController::updateOne(const HttpRequestPtr &req,
-                                    std::function<void(const HttpResponsePtr &)> &&callback,
-                                    std::string &&id)
-{
-}
+void SuppliersController::get(const HttpRequestPtr& req,
+                              std::function<void(const HttpResponsePtr&)>&& callback) {}
+void SuppliersController::create(const HttpRequestPtr& req,
+                                 std::function<void(const HttpResponsePtr&)>&& callback) {}
+void SuppliersController::updateOne(const HttpRequestPtr& req,
+                                    std::function<void(const HttpResponsePtr&)>&& callback,
+                                    std::string&& id) {}
 
 /*
 void SuppliersController::update(const HttpRequestPtr &req,
@@ -36,8 +27,6 @@ void SuppliersController::update(const HttpRequestPtr &req,
 
 }*/
 
-void SuppliersController::deleteOne(const HttpRequestPtr &req,
-                                    std::function<void(const HttpResponsePtr &)> &&callback,
-                                    std::string &&id)
-{
-}
+void SuppliersController::deleteOne(const HttpRequestPtr& req,
+                                    std::function<void(const HttpResponsePtr&)>&& callback,
+                                    std::string&& id) {}

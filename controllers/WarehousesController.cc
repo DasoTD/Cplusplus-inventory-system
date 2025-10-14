@@ -8,26 +8,17 @@
 #include "WarehousesController.h"
 #include <string>
 
+void WarehousesController::getOne(const HttpRequestPtr& req,
+                                  std::function<void(const HttpResponsePtr&)>&& callback,
+                                  std::string&& id) {}
 
-void WarehousesController::getOne(const HttpRequestPtr &req,
-                                  std::function<void(const HttpResponsePtr &)> &&callback,
-                                  std::string &&id)
-{
-}
-
-void WarehousesController::get(const HttpRequestPtr &req,
-                               std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void WarehousesController::create(const HttpRequestPtr &req,
-                                  std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void WarehousesController::updateOne(const HttpRequestPtr &req,
-                                     std::function<void(const HttpResponsePtr &)> &&callback,
-                                     std::string &&id)
-{
-}
+void WarehousesController::get(const HttpRequestPtr& req,
+                               std::function<void(const HttpResponsePtr&)>&& callback) {}
+void WarehousesController::create(const HttpRequestPtr& req,
+                                  std::function<void(const HttpResponsePtr&)>&& callback) {}
+void WarehousesController::updateOne(const HttpRequestPtr& req,
+                                     std::function<void(const HttpResponsePtr&)>&& callback,
+                                     std::string&& id) {}
 
 /*
 void WarehousesController::update(const HttpRequestPtr &req,
@@ -36,8 +27,6 @@ void WarehousesController::update(const HttpRequestPtr &req,
 
 }*/
 
-void WarehousesController::deleteOne(const HttpRequestPtr &req,
-                                     std::function<void(const HttpResponsePtr &)> &&callback,
-                                     std::string &&id)
-{
-}
+void WarehousesController::deleteOne(const HttpRequestPtr& req,
+                                     std::function<void(const HttpResponsePtr&)>&& callback,
+                                     std::string&& id) {}

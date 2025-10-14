@@ -8,26 +8,17 @@
 #include "PurchaseOrdersController.h"
 #include <string>
 
+void PurchaseOrdersController::getOne(const HttpRequestPtr& req,
+                                      std::function<void(const HttpResponsePtr&)>&& callback,
+                                      std::string&& id) {}
 
-void PurchaseOrdersController::getOne(const HttpRequestPtr &req,
-                                      std::function<void(const HttpResponsePtr &)> &&callback,
-                                      std::string &&id)
-{
-}
-
-void PurchaseOrdersController::get(const HttpRequestPtr &req,
-                                   std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void PurchaseOrdersController::create(const HttpRequestPtr &req,
-                                      std::function<void(const HttpResponsePtr &)> &&callback)
-{
-}
-void PurchaseOrdersController::updateOne(const HttpRequestPtr &req,
-                                         std::function<void(const HttpResponsePtr &)> &&callback,
-                                         std::string &&id)
-{
-}
+void PurchaseOrdersController::get(const HttpRequestPtr& req,
+                                   std::function<void(const HttpResponsePtr&)>&& callback) {}
+void PurchaseOrdersController::create(const HttpRequestPtr& req,
+                                      std::function<void(const HttpResponsePtr&)>&& callback) {}
+void PurchaseOrdersController::updateOne(const HttpRequestPtr& req,
+                                         std::function<void(const HttpResponsePtr&)>&& callback,
+                                         std::string&& id) {}
 
 /*
 void PurchaseOrdersController::update(const HttpRequestPtr &req,
@@ -36,8 +27,6 @@ void PurchaseOrdersController::update(const HttpRequestPtr &req,
 
 }*/
 
-void PurchaseOrdersController::deleteOne(const HttpRequestPtr &req,
-                                         std::function<void(const HttpResponsePtr &)> &&callback,
-                                         std::string &&id)
-{
-}
+void PurchaseOrdersController::deleteOne(const HttpRequestPtr& req,
+                                         std::function<void(const HttpResponsePtr&)>&& callback,
+                                         std::string&& id) {}

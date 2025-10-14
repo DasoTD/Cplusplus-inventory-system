@@ -10,37 +10,30 @@
 #include <drogon/HttpController.h>
 using namespace drogon;
 /**
- * @brief this class is created by the drogon_ctl command (drogon_ctl create controller -r WarehousesController).
- * this class is a restful API controller.
+ * @brief this class is created by the drogon_ctl command (drogon_ctl create controller -r
+ * WarehousesController). this class is a restful API controller.
  */
-class WarehousesController: public drogon::HttpController<WarehousesController>
-{
+class WarehousesController : public drogon::HttpController<WarehousesController> {
   public:
     METHOD_LIST_BEGIN
     // use METHOD_ADD to add your custom processing function here;
-    METHOD_ADD(WarehousesController::getOne,"/api/warehouses/{1}",Get,Options);
-    METHOD_ADD(WarehousesController::get,"/api/warehouses",Get,Options);
-    METHOD_ADD(WarehousesController::create,"/api/warehouses",Post,Options);
-    METHOD_ADD(WarehousesController::updateOne,"/api/warehouses/{1}",Put,Options);
-    //METHOD_ADD(WarehousesController::update,"",Put,Options);
-    METHOD_ADD(WarehousesController::deleteOne,"/api/warehouses/{1}",Delete,Options);
+    METHOD_ADD(WarehousesController::getOne, "/api/warehouses/{1}", Get, Options);
+    METHOD_ADD(WarehousesController::get, "/api/warehouses", Get, Options);
+    METHOD_ADD(WarehousesController::create, "/api/warehouses", Post, Options);
+    METHOD_ADD(WarehousesController::updateOne, "/api/warehouses/{1}", Put, Options);
+    // METHOD_ADD(WarehousesController::update,"",Put,Options);
+    METHOD_ADD(WarehousesController::deleteOne, "/api/warehouses/{1}", Delete, Options);
     METHOD_LIST_END
 
-    void getOne(const HttpRequestPtr &req,
-                std::function<void(const HttpResponsePtr &)> &&callback,
-                std::string &&id);
-    void updateOne(const HttpRequestPtr &req,
-                std::function<void(const HttpResponsePtr &)> &&callback,
-                std::string &&id);
-    void deleteOne(const HttpRequestPtr &req,
-                   std::function<void(const HttpResponsePtr &)> &&callback,
-                   std::string &&id);
-    void get(const HttpRequestPtr &req,
-             std::function<void(const HttpResponsePtr &)> &&callback);
-    void create(const HttpRequestPtr &req,
-                std::function<void(const HttpResponsePtr &)> &&callback);
+    void getOne(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback,
+                std::string&& id);
+    void updateOne(const HttpRequestPtr& req,
+                   std::function<void(const HttpResponsePtr&)>&& callback, std::string&& id);
+    void deleteOne(const HttpRequestPtr& req,
+                   std::function<void(const HttpResponsePtr&)>&& callback, std::string&& id);
+    void get(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback);
+    void create(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback);
 
-//    void update(const HttpRequestPtr &req,
-//                std::function<void(const HttpResponsePtr &)> &&callback);
-
+    //    void update(const HttpRequestPtr &req,
+    //                std::function<void(const HttpResponsePtr &)> &&callback);
 };

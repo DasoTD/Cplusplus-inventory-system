@@ -6,35 +6,36 @@
  */
 
 #include "ProductsController.h"
-#include "models/Products.h"
-#include <drogon/orm/Mapper.h>
 #include <drogon/orm/Exception.h>
+#include <drogon/orm/Mapper.h>
 #include <string>
+#include "models/Products.h"
 
-
-void ProductsController::getOne(const HttpRequestPtr &req,
-                                std::function<void(const HttpResponsePtr &)> &&callback,
-                                std::string &&id)
-{
+void ProductsController::getOne(const HttpRequestPtr& req,
+                                std::function<void(const HttpResponsePtr&)>&& callback,
+                                std::string&& id) {
     try {
         auto dbClient = drogon::app().getDbClient();
         auto mapper = drogon::orm::Mapper<drogon_model::sqlite3::Products>(dbClient);
-        
+
         int64_t productId = std::stoll(id);
-        mapper.findByPrimaryKey(productId, [callback](drogon_model::sqlite3::Products product) {
-            Json::Value response = product.toJson();
-            auto resp = HttpResponse::newHttpJsonResponse(response);
-            resp->setStatusCode(k200OK);
-            callback(resp);
-        }, [callback](const drogon::orm::DrogonDbException &e) {
-            Json::Value error;
-            error["error"] = "Product not found";
-            error["message"] = e.base().what();
-            auto resp = HttpResponse::newHttpJsonResponse(error);
-            resp->setStatusCode(k404NotFound);
-            callback(resp);
-        });
-    } catch (const std::exception &e) {
+        mapper.findByPrimaryKey(
+            productId,
+            [callback](drogon_model::sqlite3::Products product) {
+                Json::Value response = product.toJson();
+                auto resp = HttpResponse::newHttpJsonResponse(response);
+                resp->setStatusCode(k200OK);
+                callback(resp);
+            },
+            [callback](const drogon::orm::DrogonDbException& e) {
+                Json::Value error;
+                error["error"] = "Product not found";
+                error["message"] = e.base().what();
+                auto resp = HttpResponse::newHttpJsonResponse(error);
+                resp->setStatusCode(k404NotFound);
+                callback(resp);
+            });
+    } catch (const std::exception& e) {
         Json::Value error;
         error["error"] = "Invalid product ID";
         auto resp = HttpResponse::newHttpJsonResponse(error);
@@ -43,32 +44,32 @@ void ProductsController::getOne(const HttpRequestPtr &req,
     }
 }
 
-void ProductsController::get(const HttpRequestPtr &req,
-                             std::function<void(const HttpResponsePtr &)> &&callback)
-{
+void ProductsController::get(const HttpRequestPtr& req,
+                             std::function<void(const HttpResponsePtr&)>&& callback) {
     auto dbClient = drogon::app().getDbClient();
     auto mapper = drogon::orm::Mapper<drogon_model::sqlite3::Products>(dbClient);
-    
-    mapper.findAll([callback](std::vector<drogon_model::sqlite3::Products> products) {
-        Json::Value response(Json::arrayValue);
-        for (const auto &product : products) {
-            response.append(product.toJson());
-        }
-        auto resp = HttpResponse::newHttpJsonResponse(response);
-        resp->setStatusCode(k200OK);
-        callback(resp);
-    }, [callback](const drogon::orm::DrogonDbException &e) {
-        Json::Value error;
-        error["error"] = "Failed to retrieve products";
-        error["message"] = e.base().what();
-        auto resp = HttpResponse::newHttpJsonResponse(error);
-        resp->setStatusCode(k500InternalServerError);
-        callback(resp);
-    });
+
+    mapper.findAll(
+        [callback](std::vector<drogon_model::sqlite3::Products> products) {
+            Json::Value response(Json::arrayValue);
+            for (const auto& product : products) {
+                response.append(product.toJson());
+            }
+            auto resp = HttpResponse::newHttpJsonResponse(response);
+            resp->setStatusCode(k200OK);
+            callback(resp);
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            Json::Value error;
+            error["error"] = "Failed to retrieve products";
+            error["message"] = e.base().what();
+            auto resp = HttpResponse::newHttpJsonResponse(error);
+            resp->setStatusCode(k500InternalServerError);
+            callback(resp);
+        });
 }
-void ProductsController::create(const HttpRequestPtr &req,
-                                std::function<void(const HttpResponsePtr &)> &&callback)
-{
+void ProductsController::create(const HttpRequestPtr& req,
+                                std::function<void(const HttpResponsePtr&)>&& callback) {
     try {
         auto json = req->getJsonObject();
         if (!json) {
@@ -82,23 +83,26 @@ void ProductsController::create(const HttpRequestPtr &req,
 
         auto dbClient = drogon::app().getDbClient();
         auto mapper = drogon::orm::Mapper<drogon_model::sqlite3::Products>(dbClient);
-        
+
         drogon_model::sqlite3::Products product(*json);
-        
-        mapper.insert(product, [callback](drogon_model::sqlite3::Products newProduct) {
-            Json::Value response = newProduct.toJson();
-            auto resp = HttpResponse::newHttpJsonResponse(response);
-            resp->setStatusCode(k201Created);
-            callback(resp);
-        }, [callback](const drogon::orm::DrogonDbException &e) {
-            Json::Value error;
-            error["error"] = "Failed to create product";
-            error["message"] = e.base().what();
-            auto resp = HttpResponse::newHttpJsonResponse(error);
-            resp->setStatusCode(k500InternalServerError);
-            callback(resp);
-        });
-    } catch (const std::exception &e) {
+
+        mapper.insert(
+            product,
+            [callback](drogon_model::sqlite3::Products newProduct) {
+                Json::Value response = newProduct.toJson();
+                auto resp = HttpResponse::newHttpJsonResponse(response);
+                resp->setStatusCode(k201Created);
+                callback(resp);
+            },
+            [callback](const drogon::orm::DrogonDbException& e) {
+                Json::Value error;
+                error["error"] = "Failed to create product";
+                error["message"] = e.base().what();
+                auto resp = HttpResponse::newHttpJsonResponse(error);
+                resp->setStatusCode(k500InternalServerError);
+                callback(resp);
+            });
+    } catch (const std::exception& e) {
         Json::Value error;
         error["error"] = "Invalid product data";
         error["message"] = e.what();
@@ -107,11 +111,9 @@ void ProductsController::create(const HttpRequestPtr &req,
         callback(resp);
     }
 }
-void ProductsController::updateOne(const HttpRequestPtr &req,
-                                   std::function<void(const HttpResponsePtr &)> &&callback,
-                                   std::string &&id)
-{
-}
+void ProductsController::updateOne(const HttpRequestPtr& req,
+                                   std::function<void(const HttpResponsePtr&)>&& callback,
+                                   std::string&& id) {}
 
 /*
 void ProductsController::update(const HttpRequestPtr &req,
@@ -120,8 +122,6 @@ void ProductsController::update(const HttpRequestPtr &req,
 
 }*/
 
-void ProductsController::deleteOne(const HttpRequestPtr &req,
-                                   std::function<void(const HttpResponsePtr &)> &&callback,
-                                   std::string &&id)
-{
-}
+void ProductsController::deleteOne(const HttpRequestPtr& req,
+                                   std::function<void(const HttpResponsePtr&)>&& callback,
+                                   std::string&& id) {}

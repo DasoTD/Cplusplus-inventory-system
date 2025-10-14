@@ -6,44 +6,38 @@
  */
 
 #pragma once
+#include <drogon/orm/BaseBuilder.h>
+#include <drogon/orm/Field.h>
+#include <drogon/orm/Mapper.h>
 #include <drogon/orm/Result.h>
 #include <drogon/orm/Row.h>
-#include <drogon/orm/Field.h>
 #include <drogon/orm/SqlBinder.h>
-#include <drogon/orm/Mapper.h>
-#include <drogon/orm/BaseBuilder.h>
 #ifdef __cpp_impl_coroutine
 #include <drogon/orm/CoroMapper.h>
 #endif
+#include <json/json.h>
+#include <stdint.h>
 #include <trantor/utils/Date.h>
 #include <trantor/utils/Logger.h>
-#include <json/json.h>
+#include <iostream>
+#include <memory>
 #include <string>
 #include <string_view>
-#include <memory>
-#include <vector>
 #include <tuple>
-#include <stdint.h>
-#include <iostream>
+#include <vector>
 
-namespace drogon
-{
-namespace orm
-{
+namespace drogon {
+namespace orm {
 class DbClient;
 using DbClientPtr = std::shared_ptr<DbClient>;
-}
-}
-namespace drogon_model
-{
-namespace sqlite3
-{
+}  // namespace orm
+}  // namespace drogon
+namespace drogon_model {
+namespace sqlite3 {
 
-class Products
-{
+class Products {
   public:
-    struct Cols
-    {
+    struct Cols {
         static const std::string _product_id;
         static const std::string _sku;
         static const std::string _name;
@@ -59,7 +53,7 @@ class Products
     static const bool hasPrimaryKey;
     static const std::string primaryKeyName;
     using PrimaryKeyType = int64_t;
-    const PrimaryKeyType &getPrimaryKey() const;
+    const PrimaryKeyType& getPrimaryKey() const;
 
     /**
      * @brief constructor
@@ -69,118 +63,126 @@ class Products
      * @note If the SQL is not a style of 'select * from table_name ...' (select all
      * columns by an asterisk), please set the offset to -1.
      */
-    explicit Products(const drogon::orm::Row &r, const ssize_t indexOffset = 0) noexcept;
+    explicit Products(const drogon::orm::Row& r, const ssize_t indexOffset = 0) noexcept;
 
     /**
      * @brief constructor
      * @param pJson The json object to construct a new instance.
      */
-    explicit Products(const Json::Value &pJson) noexcept(false);
+    explicit Products(const Json::Value& pJson) noexcept(false);
 
     /**
      * @brief constructor
      * @param pJson The json object to construct a new instance.
      * @param pMasqueradingVector The aliases of table columns.
      */
-    Products(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false);
+    Products(const Json::Value& pJson,
+             const std::vector<std::string>& pMasqueradingVector) noexcept(false);
 
     Products() = default;
 
-    void updateByJson(const Json::Value &pJson) noexcept(false);
-    void updateByMasqueradedJson(const Json::Value &pJson,
-                                 const std::vector<std::string> &pMasqueradingVector) noexcept(false);
-    static bool validateJsonForCreation(const Json::Value &pJson, std::string &err);
-    static bool validateMasqueradedJsonForCreation(const Json::Value &,
-                                                const std::vector<std::string> &pMasqueradingVector,
-                                                    std::string &err);
-    static bool validateJsonForUpdate(const Json::Value &pJson, std::string &err);
-    static bool validateMasqueradedJsonForUpdate(const Json::Value &,
-                                          const std::vector<std::string> &pMasqueradingVector,
-                                          std::string &err);
-    static bool validJsonOfField(size_t index,
-                          const std::string &fieldName,
-                          const Json::Value &pJson,
-                          std::string &err,
-                          bool isForCreation);
+    void updateByJson(const Json::Value& pJson) noexcept(false);
+    void updateByMasqueradedJson(
+        const Json::Value& pJson,
+        const std::vector<std::string>& pMasqueradingVector) noexcept(false);
+    static bool validateJsonForCreation(const Json::Value& pJson, std::string& err);
+    static bool validateMasqueradedJsonForCreation(
+        const Json::Value&, const std::vector<std::string>& pMasqueradingVector, std::string& err);
+    static bool validateJsonForUpdate(const Json::Value& pJson, std::string& err);
+    static bool validateMasqueradedJsonForUpdate(
+        const Json::Value&, const std::vector<std::string>& pMasqueradingVector, std::string& err);
+    static bool validJsonOfField(size_t index, const std::string& fieldName,
+                                 const Json::Value& pJson, std::string& err, bool isForCreation);
 
     /**  For column product_id  */
-    ///Get the value of the column product_id, returns the default value if the column is null
-    const int64_t &getValueOfProductId() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int64_t> &getProductId() const noexcept;
-    ///Set the value of the column product_id
-    void setProductId(const int64_t &pProductId) noexcept;
+    /// Get the value of the column product_id, returns the default value if the column is null
+    const int64_t& getValueOfProductId() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<int64_t>& getProductId() const noexcept;
+    /// Set the value of the column product_id
+    void setProductId(const int64_t& pProductId) noexcept;
     void setProductIdToNull() noexcept;
 
     /**  For column sku  */
-    ///Get the value of the column sku, returns the default value if the column is null
-    const std::string &getValueOfSku() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getSku() const noexcept;
-    ///Set the value of the column sku
-    void setSku(const std::string &pSku) noexcept;
-    void setSku(std::string &&pSku) noexcept;
+    /// Get the value of the column sku, returns the default value if the column is null
+    const std::string& getValueOfSku() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<std::string>& getSku() const noexcept;
+    /// Set the value of the column sku
+    void setSku(const std::string& pSku) noexcept;
+    void setSku(std::string&& pSku) noexcept;
 
     /**  For column name  */
-    ///Get the value of the column name, returns the default value if the column is null
-    const std::string &getValueOfName() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getName() const noexcept;
-    ///Set the value of the column name
-    void setName(const std::string &pName) noexcept;
-    void setName(std::string &&pName) noexcept;
+    /// Get the value of the column name, returns the default value if the column is null
+    const std::string& getValueOfName() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<std::string>& getName() const noexcept;
+    /// Set the value of the column name
+    void setName(const std::string& pName) noexcept;
+    void setName(std::string&& pName) noexcept;
 
     /**  For column description  */
-    ///Get the value of the column description, returns the default value if the column is null
-    const std::string &getValueOfDescription() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<std::string> &getDescription() const noexcept;
-    ///Set the value of the column description
-    void setDescription(const std::string &pDescription) noexcept;
-    void setDescription(std::string &&pDescription) noexcept;
+    /// Get the value of the column description, returns the default value if the column is null
+    const std::string& getValueOfDescription() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<std::string>& getDescription() const noexcept;
+    /// Set the value of the column description
+    void setDescription(const std::string& pDescription) noexcept;
+    void setDescription(std::string&& pDescription) noexcept;
     void setDescriptionToNull() noexcept;
 
     /**  For column reorder_threshold  */
-    ///Get the value of the column reorder_threshold, returns the default value if the column is null
-    const int64_t &getValueOfReorderThreshold() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int64_t> &getReorderThreshold() const noexcept;
-    ///Set the value of the column reorder_threshold
-    void setReorderThreshold(const int64_t &pReorderThreshold) noexcept;
+    /// Get the value of the column reorder_threshold, returns the default value if the column is
+    /// null
+    const int64_t& getValueOfReorderThreshold() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<int64_t>& getReorderThreshold() const noexcept;
+    /// Set the value of the column reorder_threshold
+    void setReorderThreshold(const int64_t& pReorderThreshold) noexcept;
 
     /**  For column quantity_in_stock  */
-    ///Get the value of the column quantity_in_stock, returns the default value if the column is null
-    const int64_t &getValueOfQuantityInStock() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int64_t> &getQuantityInStock() const noexcept;
-    ///Set the value of the column quantity_in_stock
-    void setQuantityInStock(const int64_t &pQuantityInStock) noexcept;
+    /// Get the value of the column quantity_in_stock, returns the default value if the column is
+    /// null
+    const int64_t& getValueOfQuantityInStock() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<int64_t>& getQuantityInStock() const noexcept;
+    /// Set the value of the column quantity_in_stock
+    void setQuantityInStock(const int64_t& pQuantityInStock) noexcept;
 
     /**  For column supplier_id  */
-    ///Get the value of the column supplier_id, returns the default value if the column is null
-    const int64_t &getValueOfSupplierId() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int64_t> &getSupplierId() const noexcept;
-    ///Set the value of the column supplier_id
-    void setSupplierId(const int64_t &pSupplierId) noexcept;
+    /// Get the value of the column supplier_id, returns the default value if the column is null
+    const int64_t& getValueOfSupplierId() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<int64_t>& getSupplierId() const noexcept;
+    /// Set the value of the column supplier_id
+    void setSupplierId(const int64_t& pSupplierId) noexcept;
     void setSupplierIdToNull() noexcept;
 
     /**  For column warehouse_id  */
-    ///Get the value of the column warehouse_id, returns the default value if the column is null
-    const int64_t &getValueOfWarehouseId() const noexcept;
-    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
-    const std::shared_ptr<int64_t> &getWarehouseId() const noexcept;
-    ///Set the value of the column warehouse_id
-    void setWarehouseId(const int64_t &pWarehouseId) noexcept;
+    /// Get the value of the column warehouse_id, returns the default value if the column is null
+    const int64_t& getValueOfWarehouseId() const noexcept;
+    /// Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object
+    /// if the column is null
+    const std::shared_ptr<int64_t>& getWarehouseId() const noexcept;
+    /// Set the value of the column warehouse_id
+    void setWarehouseId(const int64_t& pWarehouseId) noexcept;
     void setWarehouseIdToNull() noexcept;
 
-
-    static size_t getColumnNumber() noexcept {  return 8;  }
-    static const std::string &getColumnName(size_t index) noexcept(false);
+    static size_t getColumnNumber() noexcept {
+        return 8;
+    }
+    static const std::string& getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
     std::string toString() const;
-    Json::Value toMasqueradedJson(const std::vector<std::string> &pMasqueradingVector) const;
+    Json::Value toMasqueradedJson(const std::vector<std::string>& pMasqueradingVector) const;
     /// Relationship interfaces
   private:
     friend drogon::orm::Mapper<Products>;
@@ -191,11 +193,11 @@ class Products
 #ifdef __cpp_impl_coroutine
     friend drogon::orm::CoroMapper<Products>;
 #endif
-    static const std::vector<std::string> &insertColumns() noexcept;
-    void outputArgs(drogon::orm::internal::SqlBinder &binder) const;
+    static const std::vector<std::string>& insertColumns() noexcept;
+    void outputArgs(drogon::orm::internal::SqlBinder& binder) const;
     const std::vector<std::string> updateColumns() const;
-    void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
-    ///For mysql or sqlite3
+    void updateArgs(drogon::orm::internal::SqlBinder& binder) const;
+    /// For mysql or sqlite3
     void updateId(const uint64_t id);
     std::shared_ptr<int64_t> productId_;
     std::shared_ptr<std::string> sku_;
@@ -205,8 +207,7 @@ class Products
     std::shared_ptr<int64_t> quantityInStock_;
     std::shared_ptr<int64_t> supplierId_;
     std::shared_ptr<int64_t> warehouseId_;
-    struct MetaData
-    {
+    struct MetaData {
         const std::string colName_;
         const std::string colType_;
         const std::string colDatabaseType_;
@@ -216,104 +217,78 @@ class Products
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[8]={ false };
+    bool dirtyFlag_[8] = {false};
+
   public:
-    static const std::string &sqlForFindingByPrimaryKey()
-    {
-        static const std::string sql="select * from " + tableName + " where product_id = ?";
+    static const std::string& sqlForFindingByPrimaryKey() {
+        static const std::string sql = "select * from " + tableName + " where product_id = ?";
         return sql;
     }
 
-    static const std::string &sqlForDeletingByPrimaryKey()
-    {
-        static const std::string sql="delete from " + tableName + " where product_id = ?";
+    static const std::string& sqlForDeletingByPrimaryKey() {
+        static const std::string sql = "delete from " + tableName + " where product_id = ?";
         return sql;
     }
-    std::string sqlForInserting(bool &needSelection) const
-    {
-        std::string sql="insert into " + tableName + " (";
+    std::string sqlForInserting(bool& needSelection) const {
+        std::string sql = "insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
-        if(dirtyFlag_[1])
-        {
+        if (dirtyFlag_[1]) {
             sql += "sku,";
             ++parametersCount;
         }
-        if(dirtyFlag_[2])
-        {
+        if (dirtyFlag_[2]) {
             sql += "name,";
             ++parametersCount;
         }
-        if(dirtyFlag_[3])
-        {
+        if (dirtyFlag_[3]) {
             sql += "description,";
             ++parametersCount;
         }
-        if(dirtyFlag_[4])
-        {
+        if (dirtyFlag_[4]) {
             sql += "reorder_threshold,";
             ++parametersCount;
         }
-        if(dirtyFlag_[5])
-        {
+        if (dirtyFlag_[5]) {
             sql += "quantity_in_stock,";
             ++parametersCount;
         }
-        if(dirtyFlag_[6])
-        {
+        if (dirtyFlag_[6]) {
             sql += "supplier_id,";
             ++parametersCount;
         }
-        if(dirtyFlag_[7])
-        {
+        if (dirtyFlag_[7]) {
             sql += "warehouse_id,";
             ++parametersCount;
         }
-        if(parametersCount > 0)
-        {
-            sql[sql.length()-1]=')';
+        if (parametersCount > 0) {
+            sql[sql.length() - 1] = ')';
             sql += " values (";
-        }
-        else
+        } else
             sql += ") values (";
 
-        if(dirtyFlag_[1])
-        {
+        if (dirtyFlag_[1]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[2])
-        {
+        if (dirtyFlag_[2]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[3])
-        {
+        if (dirtyFlag_[3]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[4])
-        {
+        if (dirtyFlag_[4]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[5])
-        {
+        if (dirtyFlag_[5]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[6])
-        {
+        if (dirtyFlag_[6]) {
             sql.append("?,");
-
         }
-        if(dirtyFlag_[7])
-        {
+        if (dirtyFlag_[7]) {
             sql.append("?,");
-
         }
-        if(parametersCount > 0)
-        {
+        if (parametersCount > 0) {
             sql.resize(sql.length() - 1);
         }
         sql.append(1, ')');
@@ -321,5 +296,5 @@ class Products
         return sql;
     }
 };
-} // namespace sqlite3
-} // namespace drogon_model
+}  // namespace sqlite3
+}  // namespace drogon_model
