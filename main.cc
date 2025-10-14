@@ -2,7 +2,7 @@
 #include <json/json.h>
 #include <mutex>
 // Include controllers to ensure they are compiled and auto-registered
-#include "controlleinventoryrs/ProductsController.h"
+#include "controllers/ProductsController.h"
 
 void initializeDatabase() {
     LOG_INFO << "Initializing database tables...";
@@ -233,17 +233,6 @@ int main() {
             resp->addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
             resp->addHeader("Access-Control-Allow-Headers", "Content-Type");
         });
-
-    // Initialize database on startup using a global flag
-    static bool dbInitialized = false;
-    drogon::app().registerPreRoutingAdvice([](const drogon::HttpRequestPtr& req) {
-        static std::once_flag flag;
-        std::call_once(flag, []() {
-            LOG_INFO << "First request received, initializing database...";
-            initializeDatabase();
-        });
-        return drogon::HttpStatusCode::k200OK;
-    });
 
     // Run HTTP framework,the method will block in the internal event loop
     drogon::app().run();
