@@ -1,0 +1,224 @@
+<%view%>
+<%c++
+#include <drogon/DrTemplateBase.h>
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product - Inventory System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">🏠 Home</a>
+            <a href="/create">➕ Create Product</a>
+            <a href="/api/products">📋 View All Products (JSON)</a>
+            <a href="/api">📚 API Documentation</a>
+        </div>
+        
+        <h1>Create New Product</h1>
+        
+        <form id="productForm" method="POST" action="/create">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sku">SKU (Stock Keeping Unit)*</label>
+                    <input type="text" id="sku" name="sku" required 
+                           placeholder="e.g., SKU005" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="name">Product Name*</label>
+                    <input type="text" id="name" name="name" required 
+                           placeholder="e.g., Wireless Headphones" maxlength="100">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" 
+                          placeholder="Detailed product description..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="">Select category...</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Books">Books</option>
+                        <option value="Home & Garden">Home & Garden</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Automotive">Automotive</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="unit_price">Unit Price ($)*</label>
+                    <input type="number" id="unit_price" name="unit_price" 
+                           step="0.01" min="0" required placeholder="0.00">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="quantity_in_stock">Initial Stock Quantity*</label>
+                    <input type="number" id="quantity_in_stock" name="quantity_in_stock" 
+                           min="0" required placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="reorder_threshold">Reorder Threshold*</label>
+                    <input type="number" id="reorder_threshold" name="reorder_threshold" 
+                           min="0" required placeholder="10">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="supplier_id">Supplier ID</label>
+                    <input type="number" id="supplier_id" name="supplier_id" 
+                           min="1" placeholder="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="warehouse_id">Warehouse ID</label>
+                    <input type="number" id="warehouse_id" name="warehouse_id" 
+                           min="1" placeholder="1" value="1">
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn">✅ Create Product</button>
+                <button type="reset" class="btn btn-secondary">🔄 Reset Form</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            // Convert form data to JSON
+            for (let [key, value] of formData.entries()) {
+                if (key === 'unit_price' || key === 'quantity_in_stock' || 
+                    key === 'reorder_threshold' || key === 'supplier_id' || key === 'warehouse_id') {
+                    data[key] = value ? parseFloat(value) : null;
+                } else {
+                    data[key] = value || null;
+                }
+            }
+            
+            // Send POST request to API
+            fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.product_id) {
+                    alert('✅ Product created successfully!\\nProduct ID: ' + result.product_id + '\\nSKU: ' + result.sku);
+                    this.reset();
+                } else {
+                    alert('❌ Error creating product: ' + (result.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('❌ Network error: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>
