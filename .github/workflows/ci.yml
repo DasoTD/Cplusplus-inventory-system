@@ -142,6 +142,11 @@ jobs:
     
     - name: Run basic functionality test
       run: |
+        # Copy config files and database to build directory
+        cp config.json build/
+        cp config.yaml build/ 2>/dev/null || echo "config.yaml not required"
+        cp inventory.db build/
+        
         cd build
         timeout 10s ./inventory_system &
         sleep 5
