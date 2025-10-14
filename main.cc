@@ -171,7 +171,7 @@ int main() {
             Json::Value response;
             response["status"] = "healthy";
             response["service"] = "inventory-system";
-            response["timestamp"] = std::time(nullptr);
+            response["timestamp"] = static_cast<Json::Int64>(std::time(nullptr));
             auto resp = drogon::HttpResponse::newHttpJsonResponse(response);
             callback(resp);
         });

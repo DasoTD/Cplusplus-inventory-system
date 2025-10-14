@@ -35,10 +35,22 @@ jobs:
           libbrotli-dev \
           ninja-build
     
+    - name: Cache Drogon installation
+      id: cache-drogon-linux
+      uses: actions/cache@v4
+      with:
+        path: /usr/local
+        key: drogon-linux-${{ matrix.compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          drogon-linux-${{ matrix.compiler }}-${{ matrix.build_type }}-
+          drogon-linux-${{ matrix.compiler }}-
+    
     - name: Install Drogon framework
+      if: steps.cache-drogon-linux.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
+        git checkout v1.9.1
         git submodule update --init
         mkdir build
         cd build
@@ -78,7 +90,7 @@ jobs:
     
     - name: Upload build artifacts
       if: matrix.compiler == 'gcc' && matrix.build_type == 'Release'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: inventory-system-linux
         path: |
@@ -88,6 +100,7 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    timeout-minutes: 30
     
     steps:
     - name: Checkout code
@@ -98,10 +111,21 @@ jobs:
         brew update
         brew install cmake ninja jsoncpp sqlite3 openssl@3 ossp-uuid
     
+    - name: Cache Drogon installation
+      id: cache-drogon-macos
+      uses: actions/cache@v4
+      with:
+        path: /usr/local
+        key: drogon-macos-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          drogon-macos-
+    
     - name: Install Drogon framework
+      if: steps.cache-drogon-macos.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
+        git checkout v1.9.1
         git submodule update --init
         mkdir build
         cd build
@@ -129,6 +153,7 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 45
     
     steps:
     - name: Checkout code
@@ -137,14 +162,35 @@ jobs:
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v1.3
       
+    - name: Cache vcpkg packages
+      id: cache-vcpkg
+      uses: actions/cache@v4
+      with:
+        path: C:/vcpkg/installed
+        key: vcpkg-windows-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          vcpkg-windows-
+      
     - name: Install vcpkg dependencies
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
       run: |
         vcpkg install jsoncpp:x64-windows sqlite3:x64-windows openssl:x64-windows
+    
+    - name: Cache Drogon installation
+      id: cache-drogon-windows
+      uses: actions/cache@v4
+      with:
+        path: C:/Program Files (x86)/Drogon
+        key: drogon-windows-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          drogon-windows-
       
     - name: Install Drogon framework
+      if: steps.cache-drogon-windows.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
+        git checkout v1.9.1
         git submodule update --init
         mkdir build
         cd build
@@ -185,12 +231,27 @@ jobs:
           cppcheck \
           ninja-build \
           libjsoncpp-dev \
-          libsqlite3-dev
+          libsqlite3-dev \
+          libssl-dev \
+          zlib1g-dev \
+          uuid-dev \
+          libbrotli-dev
+    
+    - name: Cache Drogon installation
+      id: cache-drogon-static
+      uses: actions/cache@v4
+      with:
+        path: /usr/local
+        key: drogon-static-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          drogon-static-
     
     - name: Install Drogon (minimal for headers)
+      if: steps.cache-drogon-static.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
+        git checkout v1.9.1
         git submodule update --init
         mkdir build
         cd build
@@ -232,7 +293,7 @@ jobs:
         output: 'trivy-results.sarif'
       
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
