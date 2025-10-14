@@ -17,6 +17,7 @@ A modern, high-performance inventory management system built with C++ and the Dr
 
 ## 📋 API Endpoints
 
+### REST API
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/health` | Health check |
@@ -26,6 +27,12 @@ A modern, high-performance inventory management system built with C++ and the Dr
 | POST | `/api/products` | Create new product |
 | PUT | `/api/products/{id}` | Update product |
 | DELETE | `/api/products/{id}` | Delete product |
+
+### Web Interface
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Home page (redirects to create form) |
+| GET | `/create` | Web form for creating products |
 
 ## 🛠️ Tech Stack
 
@@ -61,11 +68,12 @@ brew install cmake ninja jsoncpp sqlite3 openssl@3 ossp-uuid
 ```bash
 git clone https://github.com/drogonframework/drogon.git
 cd drogon
+git checkout v1.9.1
 git submodule update --init
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-sudo make install
+cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
+ninja -j$(nproc)
+sudo ninja install
 sudo ldconfig  # Linux only
 ```
 
@@ -74,8 +82,8 @@ sudo ldconfig  # Linux only
 git clone https://github.com/DasoTD/Cplusplus-inventory-system.git
 cd Cplusplus-inventory-system
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
+cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
+ninja -j$(nproc)
 ```
 
 ## 🚀 Running the Application
@@ -111,12 +119,28 @@ The project includes automated testing in GitHub Actions:
 Run tests locally:
 ```bash
 cd build
+
+# Build and run tests
+ninja
+
+# Run unit tests (if available)
+./test/inventory_system_test
+
 # Run integration tests
-timeout 10s ./inventory_system &
-sleep 2
+./inventory_system &
+SERVER_PID=$!
+sleep 3
+
+# Test API endpoints
 curl -f http://localhost:7777/health
-curl -f http://localhost:7777/api/products
-pkill inventory_system
+curl -f http://localhost:7777/api
+echo "Testing product creation..."
+curl -X POST http://localhost:7777/api/products \
+  -H "Content-Type: application/json" \
+  -d '{"sku":"TEST001","name":"Test Product","quantity_in_stock":10,"reorder_threshold":5,"supplier_id":1,"warehouse_id":1}'
+
+# Cleanup
+kill $SERVER_PID
 ```
 
 ## 📁 Project Structure
@@ -186,7 +210,42 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [JsonCpp](https://github.com/open-source-parsers/jsoncpp) - JSON library for C++
 - [SQLite](https://www.sqlite.org/) - Embedded database engine
 
-## 📊 Status
+## � Docker Support
+
+### Quick Start with Docker
+```bash
+# Build the Docker image
+docker build -t inventory-system .
+
+# Run the container
+docker run -d -p 7777:7777 --name inventory-system inventory-system
+
+# Test the API
+curl http://localhost:7777/health
+curl http://localhost:7777/create  # Web form for creating products
+```
+
+### Docker Compose (Optional)
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## 🌐 Web Interface
+
+The application includes a web-based form for creating products:
+
+- **Web Form**: http://localhost:7777/create
+- **Home Page**: http://localhost:7777/ (redirects to create form)
+- **API Docs**: http://localhost:7777/api
+
+## �📊 Status
 
 - ✅ Core API functionality
 - ✅ Database integration with ORM
@@ -194,7 +253,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Automated CI/CD pipeline
 - ✅ Multi-platform builds
 - ✅ Integration testing
+- ✅ Docker support with multi-stage builds
+- ✅ Web interface for product creation
+- ✅ Database initialization with sample data
 - 🔄 Unit testing (in progress)
-- 🔄 Documentation (in progress)
-- 🔄 Docker support (planned)
 - 🔄 Authentication (planned)
