@@ -50,7 +50,7 @@ void ProductsController::get(const HttpRequestPtr& req,
     auto mapper = drogon::orm::Mapper<drogon_model::sqlite3::Products>(dbClient);
 
     mapper.findAll(
-        [callback](std::vector<drogon_model::sqlite3::Products> products) {
+        [callback](const std::vector<drogon_model::sqlite3::Products>& products) {
             Json::Value response(Json::arrayValue);
             for (const auto& product : products) {
                 response.append(product.toJson());
