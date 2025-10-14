@@ -72,5 +72,4 @@ target_sources(${PROJECT_NAME}
 
 # ##############################################################################
 
-# Temporarily disable test build on Windows due to drogon_ctl DLL issues
-# add_subdirectory(test)
+add_subdirectory(test)
