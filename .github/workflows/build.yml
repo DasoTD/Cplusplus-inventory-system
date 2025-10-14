@@ -172,14 +172,15 @@ jobs:
       uses: actions/cache@v4
       with:
         path: C:/vcpkg/installed
-        key: vcpkg-windows-${{ hashFiles('**/CMakeLists.txt') }}
+        key: vcpkg-windows-v2-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
+          vcpkg-windows-v2-
           vcpkg-windows-
       
     - name: Install vcpkg dependencies
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'
       run: |
-        vcpkg install jsoncpp:x64-windows sqlite3:x64-windows openssl:x64-windows
+        vcpkg install jsoncpp:x64-windows sqlite3:x64-windows openssl:x64-windows zlib:x64-windows brotli:x64-windows
     
     - name: Cache Drogon installation
       id: cache-drogon-windows
