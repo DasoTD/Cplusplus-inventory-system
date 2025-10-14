@@ -2,7 +2,7 @@
 #include <json/json.h>
 #include <mutex>
 // Include controllers to ensure they are compiled and auto-registered
-#include "controllers/ProductsController.h"
+#include "controlleinventoryrs/ProductsController.h"
 
 void initializeDatabase() {
     LOG_INFO << "Initializing database tables...";
