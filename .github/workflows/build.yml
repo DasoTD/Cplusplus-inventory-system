@@ -86,11 +86,19 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        # Run basic executable check
-        ./inventory_system --help || echo "Application built successfully"
+        # Check if application was built successfully
+        if [ -f "./inventory_system" ]; then
+          echo "Application built successfully - inventory_system exists"
+        else
+          echo "ERROR: inventory_system not found"
+          exit 1
+        fi
         # Run unit tests if they exist
-        if [ -f "./inventory_system_test" ]; then
-          ./inventory_system_test
+        if [ -f "./test/inventory_system_test" ]; then
+          echo "Running unit tests..."
+          ./test/inventory_system_test
+        else
+          echo "Unit tests not found, skipping"
         fi
     
     - name: Upload build artifacts
@@ -154,7 +162,20 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        ./inventory_system --help || echo "Application built successfully"
+        # Check if application was built successfully
+        if [ -f "./inventory_system" ]; then
+          echo "Application built successfully - inventory_system exists"
+        else
+          echo "ERROR: inventory_system not found"
+          exit 1
+        fi
+        # Run unit tests if they exist
+        if [ -f "./test/inventory_system_test" ]; then
+          echo "Running unit tests..."
+          ./test/inventory_system_test
+        else
+          echo "Unit tests not found, skipping"
+        fi
 
   build-windows:
     runs-on: windows-latest
@@ -223,7 +244,13 @@ jobs:
     - name: Run tests
       run: |
         cd build/Release
-        ./inventory_system.exe --help || echo "Application built successfully"
+        if (Test-Path "./inventory_system.exe") {
+          Write-Host "Application built successfully - inventory_system.exe exists"
+          exit 0
+        } else {
+          Write-Host "ERROR: inventory_system.exe not found"
+          exit 1
+        }
 
   static-analysis:
     runs-on: ubuntu-latest
