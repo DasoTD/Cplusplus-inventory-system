@@ -45,7 +45,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /usr/local
-        key: drogon-linux-${{ matrix.compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
+        key: drogon-linux-v1.9.6-${{ matrix.compiler }}-${{ matrix.build_type }}-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
           drogon-linux-${{ matrix.compiler }}-${{ matrix.build_type }}-
           drogon-linux-${{ matrix.compiler }}-
@@ -55,7 +55,7 @@ jobs:
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
-        git checkout v1.9.1
+        git checkout v1.9.6
         git submodule update --init
         mkdir build
         cd build
@@ -121,7 +121,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /usr/local
-        key: drogon-macos-${{ hashFiles('**/CMakeLists.txt') }}
+        key: drogon-macos-v1.9.6-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
           drogon-macos-
     
@@ -130,7 +130,7 @@ jobs:
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
-        git checkout v1.9.1
+        git checkout v1.9.6
         git submodule update --init
         mkdir build
         cd build
@@ -186,7 +186,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: C:/Program Files (x86)/Drogon
-        key: drogon-windows-${{ hashFiles('**/CMakeLists.txt') }}
+        key: drogon-windows-v1.9.6-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
           drogon-windows-
       
@@ -195,7 +195,7 @@ jobs:
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
-        git checkout v1.9.1
+        git checkout v1.9.6
         git submodule update --init
         mkdir build
         cd build
@@ -247,7 +247,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /usr/local
-        key: drogon-static-${{ hashFiles('**/CMakeLists.txt') }}
+        key: drogon-static-v1.9.6-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
           drogon-static-
     
@@ -256,7 +256,7 @@ jobs:
       run: |
         git clone https://github.com/drogonframework/drogon.git
         cd drogon
-        git checkout v1.9.1
+        git checkout v1.9.6
         git submodule update --init
         mkdir build
         cd build
