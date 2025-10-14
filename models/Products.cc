@@ -17,1068 +17,2223 @@ const std::string Products::Cols::_product_id = "product_id";
 const std::string Products::Cols::_sku = "sku";
 const std::string Products::Cols::_name = "name";
 const std::string Products::Cols::_description = "description";
-const std::string Products::Cols::_reorder_threshold = "reorder_threshold";
+const std::string Products::Cols::_category = "category";
+const std::string Products::Cols::_unit_price = "unit_price";
 const std::string Products::Cols::_quantity_in_stock = "quantity_in_stock";
+const std::string Products::Cols::_reorder_threshold = "reorder_threshold";
 const std::string Products::Cols::_supplier_id = "supplier_id";
 const std::string Products::Cols::_warehouse_id = "warehouse_id";
+const std::string Products::Cols::_created_at = "created_at";
+const std::string Products::Cols::_updated_at = "updated_at";
 const std::string Products::primaryKeyName = "product_id";
 const bool Products::hasPrimaryKey = true;
 const std::string Products::tableName = "products";
 
-const std::vector<typename Products::MetaData> Products::metaData_ = {
-    {"product_id", "int64_t", "integer", 8, 1, 1, 0},
-    {"sku", "std::string", "text", 0, 0, 0, 1},
-    {"name", "std::string", "text", 0, 0, 0, 1},
-    {"description", "std::string", "text", 0, 0, 0, 0},
-    {"reorder_threshold", "int64_t", "integer", 8, 0, 0, 1},
-    {"quantity_in_stock", "int64_t", "integer", 8, 0, 0, 1},
-    {"supplier_id", "int64_t", "integer", 8, 0, 0, 0},
-    {"warehouse_id", "int64_t", "integer", 8, 0, 0, 0}};
-const std::string& Products::getColumnName(size_t index) noexcept(false) {
+const std::vector<typename Products::MetaData> Products::metaData_={
+{"product_id","int64_t","integer",8,1,1,0},
+{"sku","std::string","text",0,0,0,1},
+{"name","std::string","text",0,0,0,1},
+{"description","std::string","text",0,0,0,0},
+{"category","std::string","text",0,0,0,0},
+{"unit_price","double","real",8,0,0,1},
+{"quantity_in_stock","int64_t","integer",8,0,0,1},
+{"reorder_threshold","int64_t","integer",8,0,0,1},
+{"supplier_id","int64_t","integer",8,0,0,0},
+{"warehouse_id","int64_t","integer",8,0,0,0},
+{"created_at","::trantor::Date","datetime",0,0,0,0},
+{"updated_at","::trantor::Date","datetime",0,0,0,0}
+};
+const std::string &Products::getColumnName(size_t index) noexcept(false)
+{
     assert(index < metaData_.size());
     return metaData_[index].colName_;
 }
-Products::Products(const Row& r, const ssize_t indexOffset) noexcept {
-    if (indexOffset < 0) {
-        if (!r["product_id"].isNull()) {
-            productId_ = std::make_shared<int64_t>(r["product_id"].as<int64_t>());
+Products::Products(const Row &r, const ssize_t indexOffset) noexcept
+{
+    if(indexOffset < 0)
+    {
+        if(!r["product_id"].isNull())
+        {
+            productId_=std::make_shared<int64_t>(r["product_id"].as<int64_t>());
         }
-        if (!r["sku"].isNull()) {
-            sku_ = std::make_shared<std::string>(r["sku"].as<std::string>());
+        if(!r["sku"].isNull())
+        {
+            sku_=std::make_shared<std::string>(r["sku"].as<std::string>());
         }
-        if (!r["name"].isNull()) {
-            name_ = std::make_shared<std::string>(r["name"].as<std::string>());
+        if(!r["name"].isNull())
+        {
+            name_=std::make_shared<std::string>(r["name"].as<std::string>());
         }
-        if (!r["description"].isNull()) {
-            description_ = std::make_shared<std::string>(r["description"].as<std::string>());
+        if(!r["description"].isNull())
+        {
+            description_=std::make_shared<std::string>(r["description"].as<std::string>());
         }
-        if (!r["reorder_threshold"].isNull()) {
-            reorderThreshold_ = std::make_shared<int64_t>(r["reorder_threshold"].as<int64_t>());
+        if(!r["category"].isNull())
+        {
+            category_=std::make_shared<std::string>(r["category"].as<std::string>());
         }
-        if (!r["quantity_in_stock"].isNull()) {
-            quantityInStock_ = std::make_shared<int64_t>(r["quantity_in_stock"].as<int64_t>());
+        if(!r["unit_price"].isNull())
+        {
+            unitPrice_=std::make_shared<double>(r["unit_price"].as<double>());
         }
-        if (!r["supplier_id"].isNull()) {
-            supplierId_ = std::make_shared<int64_t>(r["supplier_id"].as<int64_t>());
+        if(!r["quantity_in_stock"].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>(r["quantity_in_stock"].as<int64_t>());
         }
-        if (!r["warehouse_id"].isNull()) {
-            warehouseId_ = std::make_shared<int64_t>(r["warehouse_id"].as<int64_t>());
+        if(!r["reorder_threshold"].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>(r["reorder_threshold"].as<int64_t>());
         }
-    } else {
+        if(!r["supplier_id"].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>(r["supplier_id"].as<int64_t>());
+        }
+        if(!r["warehouse_id"].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>(r["warehouse_id"].as<int64_t>());
+        }
+        if(!r["created_at"].isNull())
+        {
+            auto timeStr = r["created_at"].as<std::string>();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+        if(!r["updated_at"].isNull())
+        {
+            auto timeStr = r["updated_at"].as<std::string>();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+    }
+    else
+    {
         size_t offset = (size_t)indexOffset;
-        if (offset + 8 > r.size()) {
+        if(offset + 12 > r.size())
+        {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
         }
         size_t index;
         index = offset + 0;
-        if (!r[index].isNull()) {
-            productId_ = std::make_shared<int64_t>(r[index].as<int64_t>());
+        if(!r[index].isNull())
+        {
+            productId_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 1;
-        if (!r[index].isNull()) {
-            sku_ = std::make_shared<std::string>(r[index].as<std::string>());
+        if(!r[index].isNull())
+        {
+            sku_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 2;
-        if (!r[index].isNull()) {
-            name_ = std::make_shared<std::string>(r[index].as<std::string>());
+        if(!r[index].isNull())
+        {
+            name_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 3;
-        if (!r[index].isNull()) {
-            description_ = std::make_shared<std::string>(r[index].as<std::string>());
+        if(!r[index].isNull())
+        {
+            description_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 4;
-        if (!r[index].isNull()) {
-            reorderThreshold_ = std::make_shared<int64_t>(r[index].as<int64_t>());
+        if(!r[index].isNull())
+        {
+            category_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 5;
-        if (!r[index].isNull()) {
-            quantityInStock_ = std::make_shared<int64_t>(r[index].as<int64_t>());
+        if(!r[index].isNull())
+        {
+            unitPrice_=std::make_shared<double>(r[index].as<double>());
         }
         index = offset + 6;
-        if (!r[index].isNull()) {
-            supplierId_ = std::make_shared<int64_t>(r[index].as<int64_t>());
+        if(!r[index].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>(r[index].as<int64_t>());
         }
         index = offset + 7;
-        if (!r[index].isNull()) {
-            warehouseId_ = std::make_shared<int64_t>(r[index].as<int64_t>());
+        if(!r[index].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>(r[index].as<int64_t>());
+        }
+        index = offset + 8;
+        if(!r[index].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>(r[index].as<int64_t>());
+        }
+        index = offset + 9;
+        if(!r[index].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>(r[index].as<int64_t>());
+        }
+        index = offset + 10;
+        if(!r[index].isNull())
+        {
+            auto timeStr = r[index].as<std::string>();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+        index = offset + 11;
+        if(!r[index].isNull())
+        {
+            auto timeStr = r[index].as<std::string>();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
+
 }
 
-Products::Products(const Json::Value& pJson,
-                   const std::vector<std::string>& pMasqueradingVector) noexcept(false) {
-    if (pMasqueradingVector.size() != 8) {
+Products::Products(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
+{
+    if(pMasqueradingVector.size() != 12)
+    {
         LOG_ERROR << "Bad masquerading vector";
         return;
     }
-    if (!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0])) {
+    if(!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0]))
+    {
         dirtyFlag_[0] = true;
-        if (!pJson[pMasqueradingVector[0]].isNull()) {
-            productId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
+        if(!pJson[pMasqueradingVector[0]].isNull())
+        {
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
-    if (!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1])) {
+    if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
+    {
         dirtyFlag_[1] = true;
-        if (!pJson[pMasqueradingVector[1]].isNull()) {
-            sku_ = std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+        if(!pJson[pMasqueradingVector[1]].isNull())
+        {
+            sku_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
         }
     }
-    if (!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2])) {
+    if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
+    {
         dirtyFlag_[2] = true;
-        if (!pJson[pMasqueradingVector[2]].isNull()) {
-            name_ = std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+        if(!pJson[pMasqueradingVector[2]].isNull())
+        {
+            name_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
         }
     }
-    if (!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3])) {
+    if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
+    {
         dirtyFlag_[3] = true;
-        if (!pJson[pMasqueradingVector[3]].isNull()) {
-            description_ = std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
+        if(!pJson[pMasqueradingVector[3]].isNull())
+        {
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
-    if (!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4])) {
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
         dirtyFlag_[4] = true;
-        if (!pJson[pMasqueradingVector[4]].isNull()) {
-            reorderThreshold_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[4]].asInt64());
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            category_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
-    if (!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5])) {
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
         dirtyFlag_[5] = true;
-        if (!pJson[pMasqueradingVector[5]].isNull()) {
-            quantityInStock_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[5]].asInt64());
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            unitPrice_=std::make_shared<double>(pJson[pMasqueradingVector[5]].asDouble());
         }
     }
-    if (!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6])) {
+    if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+    {
         dirtyFlag_[6] = true;
-        if (!pJson[pMasqueradingVector[6]].isNull()) {
-            supplierId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[6]].asInt64());
+        if(!pJson[pMasqueradingVector[6]].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[6]].asInt64());
         }
     }
-    if (!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7])) {
+    if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+    {
         dirtyFlag_[7] = true;
-        if (!pJson[pMasqueradingVector[7]].isNull()) {
-            warehouseId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[7]].asInt64());
+        if(!pJson[pMasqueradingVector[7]].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[7]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[8]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[9]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson[pMasqueradingVector[10]].isNull())
+        {
+            auto timeStr = pJson[pMasqueradingVector[10]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+    }
+    if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson[pMasqueradingVector[11]].isNull())
+        {
+            auto timeStr = pJson[pMasqueradingVector[11]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
 }
 
-Products::Products(const Json::Value& pJson) noexcept(false) {
-    if (pJson.isMember("product_id")) {
-        dirtyFlag_[0] = true;
-        if (!pJson["product_id"].isNull()) {
-            productId_ = std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
+Products::Products(const Json::Value &pJson) noexcept(false)
+{
+    if(pJson.isMember("product_id"))
+    {
+        dirtyFlag_[0]=true;
+        if(!pJson["product_id"].isNull())
+        {
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
-    if (pJson.isMember("sku")) {
-        dirtyFlag_[1] = true;
-        if (!pJson["sku"].isNull()) {
-            sku_ = std::make_shared<std::string>(pJson["sku"].asString());
+    if(pJson.isMember("sku"))
+    {
+        dirtyFlag_[1]=true;
+        if(!pJson["sku"].isNull())
+        {
+            sku_=std::make_shared<std::string>(pJson["sku"].asString());
         }
     }
-    if (pJson.isMember("name")) {
-        dirtyFlag_[2] = true;
-        if (!pJson["name"].isNull()) {
-            name_ = std::make_shared<std::string>(pJson["name"].asString());
+    if(pJson.isMember("name"))
+    {
+        dirtyFlag_[2]=true;
+        if(!pJson["name"].isNull())
+        {
+            name_=std::make_shared<std::string>(pJson["name"].asString());
         }
     }
-    if (pJson.isMember("description")) {
-        dirtyFlag_[3] = true;
-        if (!pJson["description"].isNull()) {
-            description_ = std::make_shared<std::string>(pJson["description"].asString());
+    if(pJson.isMember("description"))
+    {
+        dirtyFlag_[3]=true;
+        if(!pJson["description"].isNull())
+        {
+            description_=std::make_shared<std::string>(pJson["description"].asString());
         }
     }
-    if (pJson.isMember("reorder_threshold")) {
-        dirtyFlag_[4] = true;
-        if (!pJson["reorder_threshold"].isNull()) {
-            reorderThreshold_ =
-                std::make_shared<int64_t>((int64_t)pJson["reorder_threshold"].asInt64());
+    if(pJson.isMember("category"))
+    {
+        dirtyFlag_[4]=true;
+        if(!pJson["category"].isNull())
+        {
+            category_=std::make_shared<std::string>(pJson["category"].asString());
         }
     }
-    if (pJson.isMember("quantity_in_stock")) {
-        dirtyFlag_[5] = true;
-        if (!pJson["quantity_in_stock"].isNull()) {
-            quantityInStock_ =
-                std::make_shared<int64_t>((int64_t)pJson["quantity_in_stock"].asInt64());
+    if(pJson.isMember("unit_price"))
+    {
+        dirtyFlag_[5]=true;
+        if(!pJson["unit_price"].isNull())
+        {
+            unitPrice_=std::make_shared<double>(pJson["unit_price"].asDouble());
         }
     }
-    if (pJson.isMember("supplier_id")) {
-        dirtyFlag_[6] = true;
-        if (!pJson["supplier_id"].isNull()) {
-            supplierId_ = std::make_shared<int64_t>((int64_t)pJson["supplier_id"].asInt64());
+    if(pJson.isMember("quantity_in_stock"))
+    {
+        dirtyFlag_[6]=true;
+        if(!pJson["quantity_in_stock"].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>((int64_t)pJson["quantity_in_stock"].asInt64());
         }
     }
-    if (pJson.isMember("warehouse_id")) {
-        dirtyFlag_[7] = true;
-        if (!pJson["warehouse_id"].isNull()) {
-            warehouseId_ = std::make_shared<int64_t>((int64_t)pJson["warehouse_id"].asInt64());
+    if(pJson.isMember("reorder_threshold"))
+    {
+        dirtyFlag_[7]=true;
+        if(!pJson["reorder_threshold"].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>((int64_t)pJson["reorder_threshold"].asInt64());
+        }
+    }
+    if(pJson.isMember("supplier_id"))
+    {
+        dirtyFlag_[8]=true;
+        if(!pJson["supplier_id"].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>((int64_t)pJson["supplier_id"].asInt64());
+        }
+    }
+    if(pJson.isMember("warehouse_id"))
+    {
+        dirtyFlag_[9]=true;
+        if(!pJson["warehouse_id"].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>((int64_t)pJson["warehouse_id"].asInt64());
+        }
+    }
+    if(pJson.isMember("created_at"))
+    {
+        dirtyFlag_[10]=true;
+        if(!pJson["created_at"].isNull())
+        {
+            auto timeStr = pJson["created_at"].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+    }
+    if(pJson.isMember("updated_at"))
+    {
+        dirtyFlag_[11]=true;
+        if(!pJson["updated_at"].isNull())
+        {
+            auto timeStr = pJson["updated_at"].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
 }
 
-void Products::updateByMasqueradedJson(
-    const Json::Value& pJson, const std::vector<std::string>& pMasqueradingVector) noexcept(false) {
-    if (pMasqueradingVector.size() != 8) {
+void Products::updateByMasqueradedJson(const Json::Value &pJson,
+                                            const std::vector<std::string> &pMasqueradingVector) noexcept(false)
+{
+    if(pMasqueradingVector.size() != 12)
+    {
         LOG_ERROR << "Bad masquerading vector";
         return;
     }
-    if (!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0])) {
-        if (!pJson[pMasqueradingVector[0]].isNull()) {
-            productId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
+    if(!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0]))
+    {
+        if(!pJson[pMasqueradingVector[0]].isNull())
+        {
+            productId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[0]].asInt64());
         }
     }
-    if (!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1])) {
+    if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
+    {
         dirtyFlag_[1] = true;
-        if (!pJson[pMasqueradingVector[1]].isNull()) {
-            sku_ = std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
+        if(!pJson[pMasqueradingVector[1]].isNull())
+        {
+            sku_=std::make_shared<std::string>(pJson[pMasqueradingVector[1]].asString());
         }
     }
-    if (!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2])) {
+    if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
+    {
         dirtyFlag_[2] = true;
-        if (!pJson[pMasqueradingVector[2]].isNull()) {
-            name_ = std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
+        if(!pJson[pMasqueradingVector[2]].isNull())
+        {
+            name_=std::make_shared<std::string>(pJson[pMasqueradingVector[2]].asString());
         }
     }
-    if (!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3])) {
+    if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
+    {
         dirtyFlag_[3] = true;
-        if (!pJson[pMasqueradingVector[3]].isNull()) {
-            description_ = std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
+        if(!pJson[pMasqueradingVector[3]].isNull())
+        {
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[3]].asString());
         }
     }
-    if (!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4])) {
+    if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+    {
         dirtyFlag_[4] = true;
-        if (!pJson[pMasqueradingVector[4]].isNull()) {
-            reorderThreshold_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[4]].asInt64());
+        if(!pJson[pMasqueradingVector[4]].isNull())
+        {
+            category_=std::make_shared<std::string>(pJson[pMasqueradingVector[4]].asString());
         }
     }
-    if (!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5])) {
+    if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+    {
         dirtyFlag_[5] = true;
-        if (!pJson[pMasqueradingVector[5]].isNull()) {
-            quantityInStock_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[5]].asInt64());
+        if(!pJson[pMasqueradingVector[5]].isNull())
+        {
+            unitPrice_=std::make_shared<double>(pJson[pMasqueradingVector[5]].asDouble());
         }
     }
-    if (!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6])) {
+    if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+    {
         dirtyFlag_[6] = true;
-        if (!pJson[pMasqueradingVector[6]].isNull()) {
-            supplierId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[6]].asInt64());
+        if(!pJson[pMasqueradingVector[6]].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[6]].asInt64());
         }
     }
-    if (!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7])) {
+    if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+    {
         dirtyFlag_[7] = true;
-        if (!pJson[pMasqueradingVector[7]].isNull()) {
-            warehouseId_ =
-                std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[7]].asInt64());
+        if(!pJson[pMasqueradingVector[7]].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[7]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[8]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson[pMasqueradingVector[9]].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>((int64_t)pJson[pMasqueradingVector[9]].asInt64());
+        }
+    }
+    if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson[pMasqueradingVector[10]].isNull())
+        {
+            auto timeStr = pJson[pMasqueradingVector[10]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+    }
+    if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson[pMasqueradingVector[11]].isNull())
+        {
+            auto timeStr = pJson[pMasqueradingVector[11]].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
 }
 
-void Products::updateByJson(const Json::Value& pJson) noexcept(false) {
-    if (pJson.isMember("product_id")) {
-        if (!pJson["product_id"].isNull()) {
-            productId_ = std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
+void Products::updateByJson(const Json::Value &pJson) noexcept(false)
+{
+    if(pJson.isMember("product_id"))
+    {
+        if(!pJson["product_id"].isNull())
+        {
+            productId_=std::make_shared<int64_t>((int64_t)pJson["product_id"].asInt64());
         }
     }
-    if (pJson.isMember("sku")) {
+    if(pJson.isMember("sku"))
+    {
         dirtyFlag_[1] = true;
-        if (!pJson["sku"].isNull()) {
-            sku_ = std::make_shared<std::string>(pJson["sku"].asString());
+        if(!pJson["sku"].isNull())
+        {
+            sku_=std::make_shared<std::string>(pJson["sku"].asString());
         }
     }
-    if (pJson.isMember("name")) {
+    if(pJson.isMember("name"))
+    {
         dirtyFlag_[2] = true;
-        if (!pJson["name"].isNull()) {
-            name_ = std::make_shared<std::string>(pJson["name"].asString());
+        if(!pJson["name"].isNull())
+        {
+            name_=std::make_shared<std::string>(pJson["name"].asString());
         }
     }
-    if (pJson.isMember("description")) {
+    if(pJson.isMember("description"))
+    {
         dirtyFlag_[3] = true;
-        if (!pJson["description"].isNull()) {
-            description_ = std::make_shared<std::string>(pJson["description"].asString());
+        if(!pJson["description"].isNull())
+        {
+            description_=std::make_shared<std::string>(pJson["description"].asString());
         }
     }
-    if (pJson.isMember("reorder_threshold")) {
+    if(pJson.isMember("category"))
+    {
         dirtyFlag_[4] = true;
-        if (!pJson["reorder_threshold"].isNull()) {
-            reorderThreshold_ =
-                std::make_shared<int64_t>((int64_t)pJson["reorder_threshold"].asInt64());
+        if(!pJson["category"].isNull())
+        {
+            category_=std::make_shared<std::string>(pJson["category"].asString());
         }
     }
-    if (pJson.isMember("quantity_in_stock")) {
+    if(pJson.isMember("unit_price"))
+    {
         dirtyFlag_[5] = true;
-        if (!pJson["quantity_in_stock"].isNull()) {
-            quantityInStock_ =
-                std::make_shared<int64_t>((int64_t)pJson["quantity_in_stock"].asInt64());
+        if(!pJson["unit_price"].isNull())
+        {
+            unitPrice_=std::make_shared<double>(pJson["unit_price"].asDouble());
         }
     }
-    if (pJson.isMember("supplier_id")) {
+    if(pJson.isMember("quantity_in_stock"))
+    {
         dirtyFlag_[6] = true;
-        if (!pJson["supplier_id"].isNull()) {
-            supplierId_ = std::make_shared<int64_t>((int64_t)pJson["supplier_id"].asInt64());
+        if(!pJson["quantity_in_stock"].isNull())
+        {
+            quantityInStock_=std::make_shared<int64_t>((int64_t)pJson["quantity_in_stock"].asInt64());
         }
     }
-    if (pJson.isMember("warehouse_id")) {
+    if(pJson.isMember("reorder_threshold"))
+    {
         dirtyFlag_[7] = true;
-        if (!pJson["warehouse_id"].isNull()) {
-            warehouseId_ = std::make_shared<int64_t>((int64_t)pJson["warehouse_id"].asInt64());
+        if(!pJson["reorder_threshold"].isNull())
+        {
+            reorderThreshold_=std::make_shared<int64_t>((int64_t)pJson["reorder_threshold"].asInt64());
+        }
+    }
+    if(pJson.isMember("supplier_id"))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson["supplier_id"].isNull())
+        {
+            supplierId_=std::make_shared<int64_t>((int64_t)pJson["supplier_id"].asInt64());
+        }
+    }
+    if(pJson.isMember("warehouse_id"))
+    {
+        dirtyFlag_[9] = true;
+        if(!pJson["warehouse_id"].isNull())
+        {
+            warehouseId_=std::make_shared<int64_t>((int64_t)pJson["warehouse_id"].asInt64());
+        }
+    }
+    if(pJson.isMember("created_at"))
+    {
+        dirtyFlag_[10] = true;
+        if(!pJson["created_at"].isNull())
+        {
+            auto timeStr = pJson["created_at"].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                createdAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
+        }
+    }
+    if(pJson.isMember("updated_at"))
+    {
+        dirtyFlag_[11] = true;
+        if(!pJson["updated_at"].isNull())
+        {
+            auto timeStr = pJson["updated_at"].asString();
+            struct tm stm;
+            memset(&stm,0,sizeof(stm));
+            auto p = strptime(timeStr.c_str(),"%Y-%m-%d %H:%M:%S",&stm);
+            time_t t = mktime(&stm);
+            size_t decimalNum = 0;
+            if(p)
+            {
+                if(*p=='.')
+                {
+                    std::string decimals(p+1,&timeStr[timeStr.length()]);
+                    while(decimals.length()<6)
+                    {
+                        decimals += "0";
+                    }
+                    decimalNum = (size_t)atol(decimals.c_str());
+                }
+                updatedAt_=std::make_shared<::trantor::Date>(t*1000000+decimalNum);
+            }
         }
     }
 }
 
-const int64_t& Products::getValueOfProductId() const noexcept {
+const int64_t &Products::getValueOfProductId() const noexcept
+{
     static const int64_t defaultValue = int64_t();
-    if (productId_)
+    if(productId_)
         return *productId_;
     return defaultValue;
 }
-const std::shared_ptr<int64_t>& Products::getProductId() const noexcept {
+const std::shared_ptr<int64_t> &Products::getProductId() const noexcept
+{
     return productId_;
 }
-void Products::setProductId(const int64_t& pProductId) noexcept {
+void Products::setProductId(const int64_t &pProductId) noexcept
+{
     productId_ = std::make_shared<int64_t>(pProductId);
     dirtyFlag_[0] = true;
 }
-void Products::setProductIdToNull() noexcept {
+void Products::setProductIdToNull() noexcept
+{
     productId_.reset();
     dirtyFlag_[0] = true;
 }
-const typename Products::PrimaryKeyType& Products::getPrimaryKey() const {
+const typename Products::PrimaryKeyType & Products::getPrimaryKey() const
+{
     assert(productId_);
     return *productId_;
 }
 
-const std::string& Products::getValueOfSku() const noexcept {
+const std::string &Products::getValueOfSku() const noexcept
+{
     static const std::string defaultValue = std::string();
-    if (sku_)
+    if(sku_)
         return *sku_;
     return defaultValue;
 }
-const std::shared_ptr<std::string>& Products::getSku() const noexcept {
+const std::shared_ptr<std::string> &Products::getSku() const noexcept
+{
     return sku_;
 }
-void Products::setSku(const std::string& pSku) noexcept {
+void Products::setSku(const std::string &pSku) noexcept
+{
     sku_ = std::make_shared<std::string>(pSku);
     dirtyFlag_[1] = true;
 }
-void Products::setSku(std::string&& pSku) noexcept {
+void Products::setSku(std::string &&pSku) noexcept
+{
     sku_ = std::make_shared<std::string>(std::move(pSku));
     dirtyFlag_[1] = true;
 }
 
-const std::string& Products::getValueOfName() const noexcept {
+const std::string &Products::getValueOfName() const noexcept
+{
     static const std::string defaultValue = std::string();
-    if (name_)
+    if(name_)
         return *name_;
     return defaultValue;
 }
-const std::shared_ptr<std::string>& Products::getName() const noexcept {
+const std::shared_ptr<std::string> &Products::getName() const noexcept
+{
     return name_;
 }
-void Products::setName(const std::string& pName) noexcept {
+void Products::setName(const std::string &pName) noexcept
+{
     name_ = std::make_shared<std::string>(pName);
     dirtyFlag_[2] = true;
 }
-void Products::setName(std::string&& pName) noexcept {
+void Products::setName(std::string &&pName) noexcept
+{
     name_ = std::make_shared<std::string>(std::move(pName));
     dirtyFlag_[2] = true;
 }
 
-const std::string& Products::getValueOfDescription() const noexcept {
+const std::string &Products::getValueOfDescription() const noexcept
+{
     static const std::string defaultValue = std::string();
-    if (description_)
+    if(description_)
         return *description_;
     return defaultValue;
 }
-const std::shared_ptr<std::string>& Products::getDescription() const noexcept {
+const std::shared_ptr<std::string> &Products::getDescription() const noexcept
+{
     return description_;
 }
-void Products::setDescription(const std::string& pDescription) noexcept {
+void Products::setDescription(const std::string &pDescription) noexcept
+{
     description_ = std::make_shared<std::string>(pDescription);
     dirtyFlag_[3] = true;
 }
-void Products::setDescription(std::string&& pDescription) noexcept {
+void Products::setDescription(std::string &&pDescription) noexcept
+{
     description_ = std::make_shared<std::string>(std::move(pDescription));
     dirtyFlag_[3] = true;
 }
-void Products::setDescriptionToNull() noexcept {
+void Products::setDescriptionToNull() noexcept
+{
     description_.reset();
     dirtyFlag_[3] = true;
 }
 
-const int64_t& Products::getValueOfReorderThreshold() const noexcept {
-    static const int64_t defaultValue = int64_t();
-    if (reorderThreshold_)
-        return *reorderThreshold_;
+const std::string &Products::getValueOfCategory() const noexcept
+{
+    static const std::string defaultValue = std::string();
+    if(category_)
+        return *category_;
     return defaultValue;
 }
-const std::shared_ptr<int64_t>& Products::getReorderThreshold() const noexcept {
-    return reorderThreshold_;
+const std::shared_ptr<std::string> &Products::getCategory() const noexcept
+{
+    return category_;
 }
-void Products::setReorderThreshold(const int64_t& pReorderThreshold) noexcept {
-    reorderThreshold_ = std::make_shared<int64_t>(pReorderThreshold);
+void Products::setCategory(const std::string &pCategory) noexcept
+{
+    category_ = std::make_shared<std::string>(pCategory);
+    dirtyFlag_[4] = true;
+}
+void Products::setCategory(std::string &&pCategory) noexcept
+{
+    category_ = std::make_shared<std::string>(std::move(pCategory));
+    dirtyFlag_[4] = true;
+}
+void Products::setCategoryToNull() noexcept
+{
+    category_.reset();
     dirtyFlag_[4] = true;
 }
 
-const int64_t& Products::getValueOfQuantityInStock() const noexcept {
-    static const int64_t defaultValue = int64_t();
-    if (quantityInStock_)
-        return *quantityInStock_;
+const double &Products::getValueOfUnitPrice() const noexcept
+{
+    static const double defaultValue = double();
+    if(unitPrice_)
+        return *unitPrice_;
     return defaultValue;
 }
-const std::shared_ptr<int64_t>& Products::getQuantityInStock() const noexcept {
-    return quantityInStock_;
+const std::shared_ptr<double> &Products::getUnitPrice() const noexcept
+{
+    return unitPrice_;
 }
-void Products::setQuantityInStock(const int64_t& pQuantityInStock) noexcept {
-    quantityInStock_ = std::make_shared<int64_t>(pQuantityInStock);
+void Products::setUnitPrice(const double &pUnitPrice) noexcept
+{
+    unitPrice_ = std::make_shared<double>(pUnitPrice);
     dirtyFlag_[5] = true;
 }
 
-const int64_t& Products::getValueOfSupplierId() const noexcept {
+const int64_t &Products::getValueOfQuantityInStock() const noexcept
+{
     static const int64_t defaultValue = int64_t();
-    if (supplierId_)
+    if(quantityInStock_)
+        return *quantityInStock_;
+    return defaultValue;
+}
+const std::shared_ptr<int64_t> &Products::getQuantityInStock() const noexcept
+{
+    return quantityInStock_;
+}
+void Products::setQuantityInStock(const int64_t &pQuantityInStock) noexcept
+{
+    quantityInStock_ = std::make_shared<int64_t>(pQuantityInStock);
+    dirtyFlag_[6] = true;
+}
+
+const int64_t &Products::getValueOfReorderThreshold() const noexcept
+{
+    static const int64_t defaultValue = int64_t();
+    if(reorderThreshold_)
+        return *reorderThreshold_;
+    return defaultValue;
+}
+const std::shared_ptr<int64_t> &Products::getReorderThreshold() const noexcept
+{
+    return reorderThreshold_;
+}
+void Products::setReorderThreshold(const int64_t &pReorderThreshold) noexcept
+{
+    reorderThreshold_ = std::make_shared<int64_t>(pReorderThreshold);
+    dirtyFlag_[7] = true;
+}
+
+const int64_t &Products::getValueOfSupplierId() const noexcept
+{
+    static const int64_t defaultValue = int64_t();
+    if(supplierId_)
         return *supplierId_;
     return defaultValue;
 }
-const std::shared_ptr<int64_t>& Products::getSupplierId() const noexcept {
+const std::shared_ptr<int64_t> &Products::getSupplierId() const noexcept
+{
     return supplierId_;
 }
-void Products::setSupplierId(const int64_t& pSupplierId) noexcept {
+void Products::setSupplierId(const int64_t &pSupplierId) noexcept
+{
     supplierId_ = std::make_shared<int64_t>(pSupplierId);
-    dirtyFlag_[6] = true;
+    dirtyFlag_[8] = true;
 }
-void Products::setSupplierIdToNull() noexcept {
+void Products::setSupplierIdToNull() noexcept
+{
     supplierId_.reset();
-    dirtyFlag_[6] = true;
+    dirtyFlag_[8] = true;
 }
 
-const int64_t& Products::getValueOfWarehouseId() const noexcept {
+const int64_t &Products::getValueOfWarehouseId() const noexcept
+{
     static const int64_t defaultValue = int64_t();
-    if (warehouseId_)
+    if(warehouseId_)
         return *warehouseId_;
     return defaultValue;
 }
-const std::shared_ptr<int64_t>& Products::getWarehouseId() const noexcept {
+const std::shared_ptr<int64_t> &Products::getWarehouseId() const noexcept
+{
     return warehouseId_;
 }
-void Products::setWarehouseId(const int64_t& pWarehouseId) noexcept {
+void Products::setWarehouseId(const int64_t &pWarehouseId) noexcept
+{
     warehouseId_ = std::make_shared<int64_t>(pWarehouseId);
-    dirtyFlag_[7] = true;
+    dirtyFlag_[9] = true;
 }
-void Products::setWarehouseIdToNull() noexcept {
+void Products::setWarehouseIdToNull() noexcept
+{
     warehouseId_.reset();
-    dirtyFlag_[7] = true;
+    dirtyFlag_[9] = true;
 }
 
-void Products::updateId(const uint64_t id) {
+const ::trantor::Date &Products::getValueOfCreatedAt() const noexcept
+{
+    static const ::trantor::Date defaultValue = ::trantor::Date();
+    if(createdAt_)
+        return *createdAt_;
+    return defaultValue;
+}
+const std::shared_ptr<::trantor::Date> &Products::getCreatedAt() const noexcept
+{
+    return createdAt_;
+}
+void Products::setCreatedAt(const ::trantor::Date &pCreatedAt) noexcept
+{
+    createdAt_ = std::make_shared<::trantor::Date>(pCreatedAt);
+    dirtyFlag_[10] = true;
+}
+void Products::setCreatedAtToNull() noexcept
+{
+    createdAt_.reset();
+    dirtyFlag_[10] = true;
+}
+
+const ::trantor::Date &Products::getValueOfUpdatedAt() const noexcept
+{
+    static const ::trantor::Date defaultValue = ::trantor::Date();
+    if(updatedAt_)
+        return *updatedAt_;
+    return defaultValue;
+}
+const std::shared_ptr<::trantor::Date> &Products::getUpdatedAt() const noexcept
+{
+    return updatedAt_;
+}
+void Products::setUpdatedAt(const ::trantor::Date &pUpdatedAt) noexcept
+{
+    updatedAt_ = std::make_shared<::trantor::Date>(pUpdatedAt);
+    dirtyFlag_[11] = true;
+}
+void Products::setUpdatedAtToNull() noexcept
+{
+    updatedAt_.reset();
+    dirtyFlag_[11] = true;
+}
+
+void Products::updateId(const uint64_t id)
+{
     productId_ = std::make_shared<int64_t>(static_cast<int64_t>(id));
 }
 
-const std::vector<std::string>& Products::insertColumns() noexcept {
-    static const std::vector<std::string> inCols = {
-        "sku",         "name",        "description", "reorder_threshold", "quantity_in_stock",
-        "supplier_id", "warehouse_id"};
+const std::vector<std::string> &Products::insertColumns() noexcept
+{
+    static const std::vector<std::string> inCols={
+        "sku",
+        "name",
+        "description",
+        "category",
+        "unit_price",
+        "quantity_in_stock",
+        "reorder_threshold",
+        "supplier_id",
+        "warehouse_id",
+        "created_at",
+        "updated_at"
+    };
     return inCols;
 }
 
-void Products::outputArgs(drogon::orm::internal::SqlBinder& binder) const {
-    if (dirtyFlag_[1]) {
-        if (getSku()) {
+void Products::outputArgs(drogon::orm::internal::SqlBinder &binder) const
+{
+    if(dirtyFlag_[1])
+    {
+        if(getSku())
+        {
             binder << getValueOfSku();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[2]) {
-        if (getName()) {
+    if(dirtyFlag_[2])
+    {
+        if(getName())
+        {
             binder << getValueOfName();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[3]) {
-        if (getDescription()) {
+    if(dirtyFlag_[3])
+    {
+        if(getDescription())
+        {
             binder << getValueOfDescription();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[4]) {
-        if (getReorderThreshold()) {
-            binder << getValueOfReorderThreshold();
-        } else {
+    if(dirtyFlag_[4])
+    {
+        if(getCategory())
+        {
+            binder << getValueOfCategory();
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[5]) {
-        if (getQuantityInStock()) {
+    if(dirtyFlag_[5])
+    {
+        if(getUnitPrice())
+        {
+            binder << getValueOfUnitPrice();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[6])
+    {
+        if(getQuantityInStock())
+        {
             binder << getValueOfQuantityInStock();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[6]) {
-        if (getSupplierId()) {
+    if(dirtyFlag_[7])
+    {
+        if(getReorderThreshold())
+        {
+            binder << getValueOfReorderThreshold();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[8])
+    {
+        if(getSupplierId())
+        {
             binder << getValueOfSupplierId();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[7]) {
-        if (getWarehouseId()) {
+    if(dirtyFlag_[9])
+    {
+        if(getWarehouseId())
+        {
             binder << getValueOfWarehouseId();
-        } else {
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[10])
+    {
+        if(getCreatedAt())
+        {
+            binder << getValueOfCreatedAt();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[11])
+    {
+        if(getUpdatedAt())
+        {
+            binder << getValueOfUpdatedAt();
+        }
+        else
+        {
             binder << nullptr;
         }
     }
 }
 
-const std::vector<std::string> Products::updateColumns() const {
+const std::vector<std::string> Products::updateColumns() const
+{
     std::vector<std::string> ret;
-    if (dirtyFlag_[1]) {
+    if(dirtyFlag_[1])
+    {
         ret.push_back(getColumnName(1));
     }
-    if (dirtyFlag_[2]) {
+    if(dirtyFlag_[2])
+    {
         ret.push_back(getColumnName(2));
     }
-    if (dirtyFlag_[3]) {
+    if(dirtyFlag_[3])
+    {
         ret.push_back(getColumnName(3));
     }
-    if (dirtyFlag_[4]) {
+    if(dirtyFlag_[4])
+    {
         ret.push_back(getColumnName(4));
     }
-    if (dirtyFlag_[5]) {
+    if(dirtyFlag_[5])
+    {
         ret.push_back(getColumnName(5));
     }
-    if (dirtyFlag_[6]) {
+    if(dirtyFlag_[6])
+    {
         ret.push_back(getColumnName(6));
     }
-    if (dirtyFlag_[7]) {
+    if(dirtyFlag_[7])
+    {
         ret.push_back(getColumnName(7));
     }
+    if(dirtyFlag_[8])
+    {
+        ret.push_back(getColumnName(8));
+    }
+    if(dirtyFlag_[9])
+    {
+        ret.push_back(getColumnName(9));
+    }
+    if(dirtyFlag_[10])
+    {
+        ret.push_back(getColumnName(10));
+    }
+    if(dirtyFlag_[11])
+    {
+        ret.push_back(getColumnName(11));
+    }
     return ret;
 }
 
-void Products::updateArgs(drogon::orm::internal::SqlBinder& binder) const {
-    if (dirtyFlag_[1]) {
-        if (getSku()) {
+void Products::updateArgs(drogon::orm::internal::SqlBinder &binder) const
+{
+    if(dirtyFlag_[1])
+    {
+        if(getSku())
+        {
             binder << getValueOfSku();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[2]) {
-        if (getName()) {
+    if(dirtyFlag_[2])
+    {
+        if(getName())
+        {
             binder << getValueOfName();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[3]) {
-        if (getDescription()) {
+    if(dirtyFlag_[3])
+    {
+        if(getDescription())
+        {
             binder << getValueOfDescription();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[4]) {
-        if (getReorderThreshold()) {
-            binder << getValueOfReorderThreshold();
-        } else {
+    if(dirtyFlag_[4])
+    {
+        if(getCategory())
+        {
+            binder << getValueOfCategory();
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[5]) {
-        if (getQuantityInStock()) {
+    if(dirtyFlag_[5])
+    {
+        if(getUnitPrice())
+        {
+            binder << getValueOfUnitPrice();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[6])
+    {
+        if(getQuantityInStock())
+        {
             binder << getValueOfQuantityInStock();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[6]) {
-        if (getSupplierId()) {
+    if(dirtyFlag_[7])
+    {
+        if(getReorderThreshold())
+        {
+            binder << getValueOfReorderThreshold();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[8])
+    {
+        if(getSupplierId())
+        {
             binder << getValueOfSupplierId();
-        } else {
+        }
+        else
+        {
             binder << nullptr;
         }
     }
-    if (dirtyFlag_[7]) {
-        if (getWarehouseId()) {
+    if(dirtyFlag_[9])
+    {
+        if(getWarehouseId())
+        {
             binder << getValueOfWarehouseId();
-        } else {
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[10])
+    {
+        if(getCreatedAt())
+        {
+            binder << getValueOfCreatedAt();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[11])
+    {
+        if(getUpdatedAt())
+        {
+            binder << getValueOfUpdatedAt();
+        }
+        else
+        {
             binder << nullptr;
         }
     }
 }
-Json::Value Products::toJson() const {
+Json::Value Products::toJson() const
+{
     Json::Value ret;
-    if (getProductId()) {
-        ret["product_id"] = (Json::Int64)getValueOfProductId();
-    } else {
-        ret["product_id"] = Json::Value();
+    if(getProductId())
+    {
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
-    if (getSku()) {
-        ret["sku"] = getValueOfSku();
-    } else {
-        ret["sku"] = Json::Value();
+    else
+    {
+        ret["product_id"]=Json::Value();
     }
-    if (getName()) {
-        ret["name"] = getValueOfName();
-    } else {
-        ret["name"] = Json::Value();
+    if(getSku())
+    {
+        ret["sku"]=getValueOfSku();
     }
-    if (getDescription()) {
-        ret["description"] = getValueOfDescription();
-    } else {
-        ret["description"] = Json::Value();
+    else
+    {
+        ret["sku"]=Json::Value();
     }
-    if (getReorderThreshold()) {
-        ret["reorder_threshold"] = (Json::Int64)getValueOfReorderThreshold();
-    } else {
-        ret["reorder_threshold"] = Json::Value();
+    if(getName())
+    {
+        ret["name"]=getValueOfName();
     }
-    if (getQuantityInStock()) {
-        ret["quantity_in_stock"] = (Json::Int64)getValueOfQuantityInStock();
-    } else {
-        ret["quantity_in_stock"] = Json::Value();
+    else
+    {
+        ret["name"]=Json::Value();
     }
-    if (getSupplierId()) {
-        ret["supplier_id"] = (Json::Int64)getValueOfSupplierId();
-    } else {
-        ret["supplier_id"] = Json::Value();
+    if(getDescription())
+    {
+        ret["description"]=getValueOfDescription();
     }
-    if (getWarehouseId()) {
-        ret["warehouse_id"] = (Json::Int64)getValueOfWarehouseId();
-    } else {
-        ret["warehouse_id"] = Json::Value();
+    else
+    {
+        ret["description"]=Json::Value();
+    }
+    if(getCategory())
+    {
+        ret["category"]=getValueOfCategory();
+    }
+    else
+    {
+        ret["category"]=Json::Value();
+    }
+    if(getUnitPrice())
+    {
+        ret["unit_price"]=getValueOfUnitPrice();
+    }
+    else
+    {
+        ret["unit_price"]=Json::Value();
+    }
+    if(getQuantityInStock())
+    {
+        ret["quantity_in_stock"]=(Json::Int64)getValueOfQuantityInStock();
+    }
+    else
+    {
+        ret["quantity_in_stock"]=Json::Value();
+    }
+    if(getReorderThreshold())
+    {
+        ret["reorder_threshold"]=(Json::Int64)getValueOfReorderThreshold();
+    }
+    else
+    {
+        ret["reorder_threshold"]=Json::Value();
+    }
+    if(getSupplierId())
+    {
+        ret["supplier_id"]=(Json::Int64)getValueOfSupplierId();
+    }
+    else
+    {
+        ret["supplier_id"]=Json::Value();
+    }
+    if(getWarehouseId())
+    {
+        ret["warehouse_id"]=(Json::Int64)getValueOfWarehouseId();
+    }
+    else
+    {
+        ret["warehouse_id"]=Json::Value();
+    }
+    if(getCreatedAt())
+    {
+        ret["created_at"]=getCreatedAt()->toDbStringLocal();
+    }
+    else
+    {
+        ret["created_at"]=Json::Value();
+    }
+    if(getUpdatedAt())
+    {
+        ret["updated_at"]=getUpdatedAt()->toDbStringLocal();
+    }
+    else
+    {
+        ret["updated_at"]=Json::Value();
     }
     return ret;
 }
 
-std::string Products::toString() const {
+std::string Products::toString() const
+{
     return toJson().toStyledString();
 }
 
-Json::Value Products::toMasqueradedJson(const std::vector<std::string>& pMasqueradingVector) const {
+Json::Value Products::toMasqueradedJson(
+    const std::vector<std::string> &pMasqueradingVector) const
+{
     Json::Value ret;
-    if (pMasqueradingVector.size() == 8) {
-        if (!pMasqueradingVector[0].empty()) {
-            if (getProductId()) {
-                ret[pMasqueradingVector[0]] = (Json::Int64)getValueOfProductId();
-            } else {
-                ret[pMasqueradingVector[0]] = Json::Value();
+    if(pMasqueradingVector.size() == 12)
+    {
+        if(!pMasqueradingVector[0].empty())
+        {
+            if(getProductId())
+            {
+                ret[pMasqueradingVector[0]]=(Json::Int64)getValueOfProductId();
+            }
+            else
+            {
+                ret[pMasqueradingVector[0]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[1].empty()) {
-            if (getSku()) {
-                ret[pMasqueradingVector[1]] = getValueOfSku();
-            } else {
-                ret[pMasqueradingVector[1]] = Json::Value();
+        if(!pMasqueradingVector[1].empty())
+        {
+            if(getSku())
+            {
+                ret[pMasqueradingVector[1]]=getValueOfSku();
+            }
+            else
+            {
+                ret[pMasqueradingVector[1]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[2].empty()) {
-            if (getName()) {
-                ret[pMasqueradingVector[2]] = getValueOfName();
-            } else {
-                ret[pMasqueradingVector[2]] = Json::Value();
+        if(!pMasqueradingVector[2].empty())
+        {
+            if(getName())
+            {
+                ret[pMasqueradingVector[2]]=getValueOfName();
+            }
+            else
+            {
+                ret[pMasqueradingVector[2]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[3].empty()) {
-            if (getDescription()) {
-                ret[pMasqueradingVector[3]] = getValueOfDescription();
-            } else {
-                ret[pMasqueradingVector[3]] = Json::Value();
+        if(!pMasqueradingVector[3].empty())
+        {
+            if(getDescription())
+            {
+                ret[pMasqueradingVector[3]]=getValueOfDescription();
+            }
+            else
+            {
+                ret[pMasqueradingVector[3]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[4].empty()) {
-            if (getReorderThreshold()) {
-                ret[pMasqueradingVector[4]] = (Json::Int64)getValueOfReorderThreshold();
-            } else {
-                ret[pMasqueradingVector[4]] = Json::Value();
+        if(!pMasqueradingVector[4].empty())
+        {
+            if(getCategory())
+            {
+                ret[pMasqueradingVector[4]]=getValueOfCategory();
+            }
+            else
+            {
+                ret[pMasqueradingVector[4]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[5].empty()) {
-            if (getQuantityInStock()) {
-                ret[pMasqueradingVector[5]] = (Json::Int64)getValueOfQuantityInStock();
-            } else {
-                ret[pMasqueradingVector[5]] = Json::Value();
+        if(!pMasqueradingVector[5].empty())
+        {
+            if(getUnitPrice())
+            {
+                ret[pMasqueradingVector[5]]=getValueOfUnitPrice();
+            }
+            else
+            {
+                ret[pMasqueradingVector[5]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[6].empty()) {
-            if (getSupplierId()) {
-                ret[pMasqueradingVector[6]] = (Json::Int64)getValueOfSupplierId();
-            } else {
-                ret[pMasqueradingVector[6]] = Json::Value();
+        if(!pMasqueradingVector[6].empty())
+        {
+            if(getQuantityInStock())
+            {
+                ret[pMasqueradingVector[6]]=(Json::Int64)getValueOfQuantityInStock();
+            }
+            else
+            {
+                ret[pMasqueradingVector[6]]=Json::Value();
             }
         }
-        if (!pMasqueradingVector[7].empty()) {
-            if (getWarehouseId()) {
-                ret[pMasqueradingVector[7]] = (Json::Int64)getValueOfWarehouseId();
-            } else {
-                ret[pMasqueradingVector[7]] = Json::Value();
+        if(!pMasqueradingVector[7].empty())
+        {
+            if(getReorderThreshold())
+            {
+                ret[pMasqueradingVector[7]]=(Json::Int64)getValueOfReorderThreshold();
+            }
+            else
+            {
+                ret[pMasqueradingVector[7]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[8].empty())
+        {
+            if(getSupplierId())
+            {
+                ret[pMasqueradingVector[8]]=(Json::Int64)getValueOfSupplierId();
+            }
+            else
+            {
+                ret[pMasqueradingVector[8]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[9].empty())
+        {
+            if(getWarehouseId())
+            {
+                ret[pMasqueradingVector[9]]=(Json::Int64)getValueOfWarehouseId();
+            }
+            else
+            {
+                ret[pMasqueradingVector[9]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[10].empty())
+        {
+            if(getCreatedAt())
+            {
+                ret[pMasqueradingVector[10]]=getCreatedAt()->toDbStringLocal();
+            }
+            else
+            {
+                ret[pMasqueradingVector[10]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[11].empty())
+        {
+            if(getUpdatedAt())
+            {
+                ret[pMasqueradingVector[11]]=getUpdatedAt()->toDbStringLocal();
+            }
+            else
+            {
+                ret[pMasqueradingVector[11]]=Json::Value();
             }
         }
         return ret;
     }
     LOG_ERROR << "Masquerade failed";
-    if (getProductId()) {
-        ret["product_id"] = (Json::Int64)getValueOfProductId();
-    } else {
-        ret["product_id"] = Json::Value();
+    if(getProductId())
+    {
+        ret["product_id"]=(Json::Int64)getValueOfProductId();
     }
-    if (getSku()) {
-        ret["sku"] = getValueOfSku();
-    } else {
-        ret["sku"] = Json::Value();
+    else
+    {
+        ret["product_id"]=Json::Value();
     }
-    if (getName()) {
-        ret["name"] = getValueOfName();
-    } else {
-        ret["name"] = Json::Value();
+    if(getSku())
+    {
+        ret["sku"]=getValueOfSku();
     }
-    if (getDescription()) {
-        ret["description"] = getValueOfDescription();
-    } else {
-        ret["description"] = Json::Value();
+    else
+    {
+        ret["sku"]=Json::Value();
     }
-    if (getReorderThreshold()) {
-        ret["reorder_threshold"] = (Json::Int64)getValueOfReorderThreshold();
-    } else {
-        ret["reorder_threshold"] = Json::Value();
+    if(getName())
+    {
+        ret["name"]=getValueOfName();
     }
-    if (getQuantityInStock()) {
-        ret["quantity_in_stock"] = (Json::Int64)getValueOfQuantityInStock();
-    } else {
-        ret["quantity_in_stock"] = Json::Value();
+    else
+    {
+        ret["name"]=Json::Value();
     }
-    if (getSupplierId()) {
-        ret["supplier_id"] = (Json::Int64)getValueOfSupplierId();
-    } else {
-        ret["supplier_id"] = Json::Value();
+    if(getDescription())
+    {
+        ret["description"]=getValueOfDescription();
     }
-    if (getWarehouseId()) {
-        ret["warehouse_id"] = (Json::Int64)getValueOfWarehouseId();
-    } else {
-        ret["warehouse_id"] = Json::Value();
+    else
+    {
+        ret["description"]=Json::Value();
+    }
+    if(getCategory())
+    {
+        ret["category"]=getValueOfCategory();
+    }
+    else
+    {
+        ret["category"]=Json::Value();
+    }
+    if(getUnitPrice())
+    {
+        ret["unit_price"]=getValueOfUnitPrice();
+    }
+    else
+    {
+        ret["unit_price"]=Json::Value();
+    }
+    if(getQuantityInStock())
+    {
+        ret["quantity_in_stock"]=(Json::Int64)getValueOfQuantityInStock();
+    }
+    else
+    {
+        ret["quantity_in_stock"]=Json::Value();
+    }
+    if(getReorderThreshold())
+    {
+        ret["reorder_threshold"]=(Json::Int64)getValueOfReorderThreshold();
+    }
+    else
+    {
+        ret["reorder_threshold"]=Json::Value();
+    }
+    if(getSupplierId())
+    {
+        ret["supplier_id"]=(Json::Int64)getValueOfSupplierId();
+    }
+    else
+    {
+        ret["supplier_id"]=Json::Value();
+    }
+    if(getWarehouseId())
+    {
+        ret["warehouse_id"]=(Json::Int64)getValueOfWarehouseId();
+    }
+    else
+    {
+        ret["warehouse_id"]=Json::Value();
+    }
+    if(getCreatedAt())
+    {
+        ret["created_at"]=getCreatedAt()->toDbStringLocal();
+    }
+    else
+    {
+        ret["created_at"]=Json::Value();
+    }
+    if(getUpdatedAt())
+    {
+        ret["updated_at"]=getUpdatedAt()->toDbStringLocal();
+    }
+    else
+    {
+        ret["updated_at"]=Json::Value();
     }
     return ret;
 }
 
-bool Products::validateJsonForCreation(const Json::Value& pJson, std::string& err) {
-    if (pJson.isMember("product_id")) {
-        if (!validJsonOfField(0, "product_id", pJson["product_id"], err, true))
+bool Products::validateJsonForCreation(const Json::Value &pJson, std::string &err)
+{
+    if(pJson.isMember("product_id"))
+    {
+        if(!validJsonOfField(0, "product_id", pJson["product_id"], err, true))
             return false;
     }
-    if (pJson.isMember("sku")) {
-        if (!validJsonOfField(1, "sku", pJson["sku"], err, true))
+    if(pJson.isMember("sku"))
+    {
+        if(!validJsonOfField(1, "sku", pJson["sku"], err, true))
             return false;
-    } else {
-        err = "The sku column cannot be null";
+    }
+    else
+    {
+        err="The sku column cannot be null";
         return false;
     }
-    if (pJson.isMember("name")) {
-        if (!validJsonOfField(2, "name", pJson["name"], err, true))
+    if(pJson.isMember("name"))
+    {
+        if(!validJsonOfField(2, "name", pJson["name"], err, true))
             return false;
-    } else {
-        err = "The name column cannot be null";
+    }
+    else
+    {
+        err="The name column cannot be null";
         return false;
     }
-    if (pJson.isMember("description")) {
-        if (!validJsonOfField(3, "description", pJson["description"], err, true))
+    if(pJson.isMember("description"))
+    {
+        if(!validJsonOfField(3, "description", pJson["description"], err, true))
             return false;
     }
-    if (pJson.isMember("reorder_threshold")) {
-        if (!validJsonOfField(4, "reorder_threshold", pJson["reorder_threshold"], err, true))
-            return false;
-    } else {
-        err = "The reorder_threshold column cannot be null";
-        return false;
-    }
-    if (pJson.isMember("quantity_in_stock")) {
-        if (!validJsonOfField(5, "quantity_in_stock", pJson["quantity_in_stock"], err, true))
-            return false;
-    } else {
-        err = "The quantity_in_stock column cannot be null";
-        return false;
-    }
-    if (pJson.isMember("supplier_id")) {
-        if (!validJsonOfField(6, "supplier_id", pJson["supplier_id"], err, true))
+    if(pJson.isMember("category"))
+    {
+        if(!validJsonOfField(4, "category", pJson["category"], err, true))
             return false;
     }
-    if (pJson.isMember("warehouse_id")) {
-        if (!validJsonOfField(7, "warehouse_id", pJson["warehouse_id"], err, true))
+    if(pJson.isMember("unit_price"))
+    {
+        if(!validJsonOfField(5, "unit_price", pJson["unit_price"], err, true))
+            return false;
+    }
+    if(pJson.isMember("quantity_in_stock"))
+    {
+        if(!validJsonOfField(6, "quantity_in_stock", pJson["quantity_in_stock"], err, true))
+            return false;
+    }
+    if(pJson.isMember("reorder_threshold"))
+    {
+        if(!validJsonOfField(7, "reorder_threshold", pJson["reorder_threshold"], err, true))
+            return false;
+    }
+    if(pJson.isMember("supplier_id"))
+    {
+        if(!validJsonOfField(8, "supplier_id", pJson["supplier_id"], err, true))
+            return false;
+    }
+    if(pJson.isMember("warehouse_id"))
+    {
+        if(!validJsonOfField(9, "warehouse_id", pJson["warehouse_id"], err, true))
+            return false;
+    }
+    if(pJson.isMember("created_at"))
+    {
+        if(!validJsonOfField(10, "created_at", pJson["created_at"], err, true))
+            return false;
+    }
+    if(pJson.isMember("updated_at"))
+    {
+        if(!validJsonOfField(11, "updated_at", pJson["updated_at"], err, true))
             return false;
     }
     return true;
 }
-bool Products::validateMasqueradedJsonForCreation(
-    const Json::Value& pJson, const std::vector<std::string>& pMasqueradingVector,
-    std::string& err) {
-    if (pMasqueradingVector.size() != 8) {
+bool Products::validateMasqueradedJsonForCreation(const Json::Value &pJson,
+                                                  const std::vector<std::string> &pMasqueradingVector,
+                                                  std::string &err)
+{
+    if(pMasqueradingVector.size() != 12)
+    {
         err = "Bad masquerading vector";
         return false;
     }
     try {
-        if (!pMasqueradingVector[0].empty()) {
-            if (pJson.isMember(pMasqueradingVector[0])) {
-                if (!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err,
-                                      true))
-                    return false;
-            }
+      if(!pMasqueradingVector[0].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[0]))
+          {
+              if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[1].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[1]))
+          {
+              if(!validJsonOfField(1, pMasqueradingVector[1], pJson[pMasqueradingVector[1]], err, true))
+                  return false;
+          }
+        else
+        {
+            err="The " + pMasqueradingVector[1] + " column cannot be null";
+            return false;
         }
-        if (!pMasqueradingVector[1].empty()) {
-            if (pJson.isMember(pMasqueradingVector[1])) {
-                if (!validJsonOfField(1, pMasqueradingVector[1], pJson[pMasqueradingVector[1]], err,
-                                      true))
-                    return false;
-            } else {
-                err = "The " + pMasqueradingVector[1] + " column cannot be null";
-                return false;
-            }
+      }
+      if(!pMasqueradingVector[2].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[2]))
+          {
+              if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, true))
+                  return false;
+          }
+        else
+        {
+            err="The " + pMasqueradingVector[2] + " column cannot be null";
+            return false;
         }
-        if (!pMasqueradingVector[2].empty()) {
-            if (pJson.isMember(pMasqueradingVector[2])) {
-                if (!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err,
-                                      true))
-                    return false;
-            } else {
-                err = "The " + pMasqueradingVector[2] + " column cannot be null";
-                return false;
-            }
-        }
-        if (!pMasqueradingVector[3].empty()) {
-            if (pJson.isMember(pMasqueradingVector[3])) {
-                if (!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err,
-                                      true))
-                    return false;
-            }
-        }
-        if (!pMasqueradingVector[4].empty()) {
-            if (pJson.isMember(pMasqueradingVector[4])) {
-                if (!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err,
-                                      true))
-                    return false;
-            } else {
-                err = "The " + pMasqueradingVector[4] + " column cannot be null";
-                return false;
-            }
-        }
-        if (!pMasqueradingVector[5].empty()) {
-            if (pJson.isMember(pMasqueradingVector[5])) {
-                if (!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err,
-                                      true))
-                    return false;
-            } else {
-                err = "The " + pMasqueradingVector[5] + " column cannot be null";
-                return false;
-            }
-        }
-        if (!pMasqueradingVector[6].empty()) {
-            if (pJson.isMember(pMasqueradingVector[6])) {
-                if (!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err,
-                                      true))
-                    return false;
-            }
-        }
-        if (!pMasqueradingVector[7].empty()) {
-            if (pJson.isMember(pMasqueradingVector[7])) {
-                if (!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err,
-                                      true))
-                    return false;
-            }
-        }
-    } catch (const Json::LogicError& e) {
-        err = e.what();
-        return false;
+      }
+      if(!pMasqueradingVector[3].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[3]))
+          {
+              if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[4].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[4]))
+          {
+              if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[5].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[5]))
+          {
+              if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[6].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[6]))
+          {
+              if(!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[7].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[7]))
+          {
+              if(!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[8].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[8]))
+          {
+              if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[9].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[9]))
+          {
+              if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[10].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[10]))
+          {
+              if(!validJsonOfField(10, pMasqueradingVector[10], pJson[pMasqueradingVector[10]], err, true))
+                  return false;
+          }
+      }
+      if(!pMasqueradingVector[11].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[11]))
+          {
+              if(!validJsonOfField(11, pMasqueradingVector[11], pJson[pMasqueradingVector[11]], err, true))
+                  return false;
+          }
+      }
+    }
+    catch(const Json::LogicError &e)
+    {
+      err = e.what();
+      return false;
     }
     return true;
 }
-bool Products::validateJsonForUpdate(const Json::Value& pJson, std::string& err) {
-    if (pJson.isMember("product_id")) {
-        if (!validJsonOfField(0, "product_id", pJson["product_id"], err, false))
+bool Products::validateJsonForUpdate(const Json::Value &pJson, std::string &err)
+{
+    if(pJson.isMember("product_id"))
+    {
+        if(!validJsonOfField(0, "product_id", pJson["product_id"], err, false))
             return false;
-    } else {
+    }
+    else
+    {
         err = "The value of primary key must be set in the json object for update";
         return false;
     }
-    if (pJson.isMember("sku")) {
-        if (!validJsonOfField(1, "sku", pJson["sku"], err, false))
+    if(pJson.isMember("sku"))
+    {
+        if(!validJsonOfField(1, "sku", pJson["sku"], err, false))
             return false;
     }
-    if (pJson.isMember("name")) {
-        if (!validJsonOfField(2, "name", pJson["name"], err, false))
+    if(pJson.isMember("name"))
+    {
+        if(!validJsonOfField(2, "name", pJson["name"], err, false))
             return false;
     }
-    if (pJson.isMember("description")) {
-        if (!validJsonOfField(3, "description", pJson["description"], err, false))
+    if(pJson.isMember("description"))
+    {
+        if(!validJsonOfField(3, "description", pJson["description"], err, false))
             return false;
     }
-    if (pJson.isMember("reorder_threshold")) {
-        if (!validJsonOfField(4, "reorder_threshold", pJson["reorder_threshold"], err, false))
+    if(pJson.isMember("category"))
+    {
+        if(!validJsonOfField(4, "category", pJson["category"], err, false))
             return false;
     }
-    if (pJson.isMember("quantity_in_stock")) {
-        if (!validJsonOfField(5, "quantity_in_stock", pJson["quantity_in_stock"], err, false))
+    if(pJson.isMember("unit_price"))
+    {
+        if(!validJsonOfField(5, "unit_price", pJson["unit_price"], err, false))
             return false;
     }
-    if (pJson.isMember("supplier_id")) {
-        if (!validJsonOfField(6, "supplier_id", pJson["supplier_id"], err, false))
+    if(pJson.isMember("quantity_in_stock"))
+    {
+        if(!validJsonOfField(6, "quantity_in_stock", pJson["quantity_in_stock"], err, false))
             return false;
     }
-    if (pJson.isMember("warehouse_id")) {
-        if (!validJsonOfField(7, "warehouse_id", pJson["warehouse_id"], err, false))
+    if(pJson.isMember("reorder_threshold"))
+    {
+        if(!validJsonOfField(7, "reorder_threshold", pJson["reorder_threshold"], err, false))
+            return false;
+    }
+    if(pJson.isMember("supplier_id"))
+    {
+        if(!validJsonOfField(8, "supplier_id", pJson["supplier_id"], err, false))
+            return false;
+    }
+    if(pJson.isMember("warehouse_id"))
+    {
+        if(!validJsonOfField(9, "warehouse_id", pJson["warehouse_id"], err, false))
+            return false;
+    }
+    if(pJson.isMember("created_at"))
+    {
+        if(!validJsonOfField(10, "created_at", pJson["created_at"], err, false))
+            return false;
+    }
+    if(pJson.isMember("updated_at"))
+    {
+        if(!validJsonOfField(11, "updated_at", pJson["updated_at"], err, false))
             return false;
     }
     return true;
 }
-bool Products::validateMasqueradedJsonForUpdate(const Json::Value& pJson,
-                                                const std::vector<std::string>& pMasqueradingVector,
-                                                std::string& err) {
-    if (pMasqueradingVector.size() != 8) {
+bool Products::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
+                                                const std::vector<std::string> &pMasqueradingVector,
+                                                std::string &err)
+{
+    if(pMasqueradingVector.size() != 12)
+    {
         err = "Bad masquerading vector";
         return false;
     }
     try {
-        if (!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0])) {
-            if (!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err,
-                                  false))
-                return false;
-        } else {
-            err = "The value of primary key must be set in the json object for update";
-            return false;
-        }
-        if (!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1])) {
-            if (!validJsonOfField(1, pMasqueradingVector[1], pJson[pMasqueradingVector[1]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2])) {
-            if (!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3])) {
-            if (!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4])) {
-            if (!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5])) {
-            if (!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6])) {
-            if (!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err,
-                                  false))
-                return false;
-        }
-        if (!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7])) {
-            if (!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err,
-                                  false))
-                return false;
-        }
-    } catch (const Json::LogicError& e) {
-        err = e.what();
+      if(!pMasqueradingVector[0].empty() && pJson.isMember(pMasqueradingVector[0]))
+      {
+          if(!validJsonOfField(0, pMasqueradingVector[0], pJson[pMasqueradingVector[0]], err, false))
+              return false;
+      }
+    else
+    {
+        err = "The value of primary key must be set in the json object for update";
         return false;
+    }
+      if(!pMasqueradingVector[1].empty() && pJson.isMember(pMasqueradingVector[1]))
+      {
+          if(!validJsonOfField(1, pMasqueradingVector[1], pJson[pMasqueradingVector[1]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[2].empty() && pJson.isMember(pMasqueradingVector[2]))
+      {
+          if(!validJsonOfField(2, pMasqueradingVector[2], pJson[pMasqueradingVector[2]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[3].empty() && pJson.isMember(pMasqueradingVector[3]))
+      {
+          if(!validJsonOfField(3, pMasqueradingVector[3], pJson[pMasqueradingVector[3]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[4].empty() && pJson.isMember(pMasqueradingVector[4]))
+      {
+          if(!validJsonOfField(4, pMasqueradingVector[4], pJson[pMasqueradingVector[4]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[5].empty() && pJson.isMember(pMasqueradingVector[5]))
+      {
+          if(!validJsonOfField(5, pMasqueradingVector[5], pJson[pMasqueradingVector[5]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[6].empty() && pJson.isMember(pMasqueradingVector[6]))
+      {
+          if(!validJsonOfField(6, pMasqueradingVector[6], pJson[pMasqueradingVector[6]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
+      {
+          if(!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+      {
+          if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[9].empty() && pJson.isMember(pMasqueradingVector[9]))
+      {
+          if(!validJsonOfField(9, pMasqueradingVector[9], pJson[pMasqueradingVector[9]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[10].empty() && pJson.isMember(pMasqueradingVector[10]))
+      {
+          if(!validJsonOfField(10, pMasqueradingVector[10], pJson[pMasqueradingVector[10]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[11].empty() && pJson.isMember(pMasqueradingVector[11]))
+      {
+          if(!validJsonOfField(11, pMasqueradingVector[11], pJson[pMasqueradingVector[11]], err, false))
+              return false;
+      }
+    }
+    catch(const Json::LogicError &e)
+    {
+      err = e.what();
+      return false;
     }
     return true;
 }
-bool Products::validJsonOfField(size_t index, const std::string& fieldName,
-                                const Json::Value& pJson, std::string& err, bool isForCreation) {
-    switch (index) {
+bool Products::validJsonOfField(size_t index,
+                                const std::string &fieldName,
+                                const Json::Value &pJson,
+                                std::string &err,
+                                bool isForCreation)
+{
+    switch(index)
+    {
         case 0:
-            if (isForCreation) {
-                err = "The automatic primary key cannot be set";
+            if(isForCreation)
+            {
+                err="The automatic primary key cannot be set";
                 return false;
             }
-            if (pJson.isNull()) {
+            if(pJson.isNull())
+            {
                 return true;
             }
-            if (!pJson.isInt64()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 1:
-            if (pJson.isNull()) {
-                err = "The " + fieldName + " column cannot be null";
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if (!pJson.isString()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 2:
-            if (pJson.isNull()) {
-                err = "The " + fieldName + " column cannot be null";
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if (!pJson.isString()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 3:
-            if (pJson.isNull()) {
+            if(pJson.isNull())
+            {
                 return true;
             }
-            if (!pJson.isString()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 4:
-            if (pJson.isNull()) {
-                err = "The " + fieldName + " column cannot be null";
-                return false;
+            if(pJson.isNull())
+            {
+                return true;
             }
-            if (!pJson.isInt64()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 5:
-            if (pJson.isNull()) {
-                err = "The " + fieldName + " column cannot be null";
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
                 return false;
             }
-            if (!pJson.isInt64()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isNumeric())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 6:
-            if (pJson.isNull()) {
-                return true;
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
             }
-            if (!pJson.isInt64()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         case 7:
-            if (pJson.isNull()) {
+            if(pJson.isNull())
+            {
+                err="The " + fieldName + " column cannot be null";
+                return false;
+            }
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 8:
+            if(pJson.isNull())
+            {
                 return true;
             }
-            if (!pJson.isInt64()) {
-                err = "Type error in the " + fieldName + " field";
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 9:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isInt64())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 10:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 11:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
                 return false;
             }
             break;
         default:
-            err = "Internal error in the server";
+            err="Internal error in the server";
             return false;
     }
     return true;
