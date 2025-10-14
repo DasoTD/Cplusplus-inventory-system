@@ -186,9 +186,10 @@ jobs:
       id: cache-drogon-windows
       uses: actions/cache@v4
       with:
-        path: C:/Program Files (x86)/Drogon
-        key: drogon-windows-v1.9.6-${{ hashFiles('**/CMakeLists.txt') }}
+        path: C:/Drogon
+        key: drogon-windows-v1.9.6-custom-prefix-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
+          drogon-windows-v1.9.6-custom-prefix-
           drogon-windows-
       
     - name: Install Drogon framework
@@ -200,7 +201,7 @@ jobs:
         git submodule update --init
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX="C:/Drogon"
         cmake --build . --config Release --parallel
         cmake --install . --config Release
     
@@ -209,7 +210,7 @@ jobs:
         if (Test-Path build) { Remove-Item build -Recurse -Force }
         New-Item -ItemType Directory -Path build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_PREFIX_PATH="C:/Drogon"
     
     - name: Build
       run: |
