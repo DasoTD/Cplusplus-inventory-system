@@ -1,0 +1,237 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+  workflow_dispatch: # Allow manual deployment
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          git \
+          libssl-dev \
+          zlib1g-dev \
+          libjsoncpp-dev \
+          uuid-dev \
+          sqlite3 \
+          libsqlite3-dev \
+          libbrotli-dev \
+          ninja-build
+
+    - name: Cache Drogon installation
+      id: cache-drogon-deploy
+      uses: actions/cache@v4
+      with:
+        path: /usr/local
+        key: drogon-deploy-v1.9.6-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          drogon-deploy-v1.9.6-
+          drogon-linux-
+
+    - name: Install Drogon framework
+      if: steps.cache-drogon-deploy.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/drogonframework/drogon.git
+        cd drogon
+        git checkout v1.9.6
+        git submodule update --init
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
+        ninja -j$(nproc)
+        sudo ninja install
+        sudo ldconfig
+
+    - name: Build application
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        make -j$(nproc)
+
+    - name: Prepare deployment package
+      run: |
+        mkdir -p deploy_package
+        cp build/inventory_system deploy_package/
+        cp -r views deploy_package/ 2>/dev/null || echo "No views directory"
+        cp -r config*.json deploy_package/ 2>/dev/null || echo "No config files"
+        cp -r config*.yaml deploy_package/ 2>/dev/null || echo "No config files"
+        
+        # Create deployment scripts
+        cat > deploy_package/install.sh << 'EOF'
+        #!/bin/bash
+        set -e
+        
+        echo "Installing Inventory System..."
+        
+        # Create application directory
+        sudo mkdir -p /opt/inventory_system
+        sudo chown $USER:$USER /opt/inventory_system
+        
+        # Copy application files
+        cp inventory_system /opt/inventory_system/
+        cp -r views /opt/inventory_system/ 2>/dev/null || echo "No views to copy"
+        cp config*.json /opt/inventory_system/ 2>/dev/null || echo "No JSON config to copy"
+        cp config*.yaml /opt/inventory_system/ 2>/dev/null || echo "No YAML config to copy"
+        
+        # Make executable
+        chmod +x /opt/inventory_system/inventory_system
+        
+        # Create systemd service
+        sudo tee /etc/systemd/system/inventory-system.service > /dev/null << 'SYSTEMD_EOF'
+        [Unit]
+        Description=C++ Inventory Management System
+        After=network.target
+        
+        [Service]
+        Type=simple
+        User=www-data
+        Group=www-data
+        WorkingDirectory=/opt/inventory_system
+        ExecStart=/opt/inventory_system/inventory_system
+        Restart=always
+        RestartSec=3
+        
+        # Environment
+        Environment=NODE_ENV=production
+        
+        # Security settings
+        NoNewPrivileges=yes
+        PrivateTmp=yes
+        ProtectSystem=strict
+        ProtectHome=yes
+        ReadWritePaths=/opt/inventory_system
+        
+        [Install]
+        WantedBy=multi-user.target
+        SYSTEMD_EOF
+        
+        # Set permissions
+        sudo chown -R www-data:www-data /opt/inventory_system
+        
+        # Reload systemd and start service
+        sudo systemctl daemon-reload
+        sudo systemctl enable inventory-system
+        sudo systemctl restart inventory-system
+        
+        echo "Installation complete!"
+        echo "Check status with: sudo systemctl status inventory-system"
+        echo "View logs with: sudo journalctl -u inventory-system -f"
+        EOF
+        
+        chmod +x deploy_package/install.sh
+
+    - name: Create Nginx configuration
+      run: |
+        cat > deploy_package/nginx-config << 'EOF'
+        server {
+            listen 80;
+            server_name your-domain.com;  # Replace with your domain
+            
+            location / {
+                proxy_pass http://127.0.0.1:7777;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # WebSocket support (if needed)
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+            }
+            
+            # Static files (if any)
+            location /static/ {
+                alias /opt/inventory_system/static/;
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+        }
+        EOF
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        script: |
+          # Create deployment directory
+          mkdir -p ~/deployment
+          rm -rf ~/deployment/*
+
+    - name: Copy files to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        source: "deploy_package/*"
+        target: "~/deployment/"
+        strip_components: 1
+
+    - name: Install and start application
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        script: |
+          cd ~/deployment
+          
+          # Install application
+          ./install.sh
+          
+          # Wait for service to start
+          sleep 5
+          
+          # Check if service is running
+          if sudo systemctl is-active --quiet inventory-system; then
+            echo "✅ Deployment successful! Service is running."
+            echo "🌐 Application should be available at http://your-server-ip:7777"
+          else
+            echo "❌ Deployment failed! Service is not running."
+            sudo systemctl status inventory-system
+            exit 1
+          fi
+
+    - name: Health check
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        script: |
+          # Wait a bit for service to fully start
+          sleep 10
+          
+          # Test the health endpoint
+          if curl -f http://localhost:7777/health; then
+            echo "✅ Health check passed!"
+          else
+            echo "⚠️  Health check failed, but service might still be starting..."
+            echo "Check logs: sudo journalctl -u inventory-system -f"
+          fi

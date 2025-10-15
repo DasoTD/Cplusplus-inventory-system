@@ -1,0 +1,34 @@
+{
+    "app": {
+        "threads_num": 4,
+        "port": 7777,
+        "host": "0.0.0.0",
+        "log": {
+            "log_path": "/var/log/inventory-system",
+            "logfile_base_name": "inventory_system",
+            "log_size_limit": 100000000,
+            "log_level": "INFO"
+        },
+        "run_as_daemon": false,
+        "relaunch_on_error": true,
+        "use_sendfile": true,
+        "use_gzip": true,
+        "static_files_cache_time": 86400,
+        "simple_controllers_map": {
+            "path": "./controllers",
+            "filters": []
+        },
+        "client_max_body_size": "10M",
+        "client_max_memory_body_size": "2M",
+        "client_max_websocket_message_size": "128K"
+    },
+    "db_clients": [
+        {
+            "name": "default",
+            "rdbms": "sqlite3",
+            "filename": "/opt/inventory_system/inventory.db",
+            "is_fast": false,
+            "connection_number": 1
+        }
+    ]
+}
