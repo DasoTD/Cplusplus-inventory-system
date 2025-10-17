@@ -19,7 +19,30 @@ endif ()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(${PROJECT_NAME} main.cc)
+# Add middleware source files
+set(MIDDLEWARE_SOURCES
+    middleware/validationMiddleware.cc
+)
+
+# Add database initialization source files
+set(DB_SOURCES
+    db/dbinit.cc
+)
+
+# Add validation source files
+set(VALIDATION_SOURCES
+    validation.cc
+)
+
+# Create the executable
+add_executable(${PROJECT_NAME} 
+    main.cc 
+    ${CONTROLLER_SOURCES}
+    ${MODEL_SOURCES}
+    ${MIDDLEWARE_SOURCES}
+    ${DB_SOURCES}
+    ${VALIDATION_SOURCES}
+)
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
