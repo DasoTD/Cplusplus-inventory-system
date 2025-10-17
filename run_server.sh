@@ -25,5 +25,6 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-# Start the server with output to both console and log file
-./inventory_system 2>&1 | tee ../server.log
+# Start the server from the root directory where config.json is located
+cd ..
+./build/inventory_system 2>&1 | tee server.log
